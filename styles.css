@@ -1,0 +1,242 @@
+
+:root {
+    --fire: #ff4500;
+    --fire-bright: #ff6b35;
+    --electric: #00ffff;
+    --void: #0a0a0f;
+    --gold: #ffd700;
+    --text: #ffd4b8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--void);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    overflow-x: hidden;
+}
+
+.chaos-bg, .liquid-fire, .grid-overlay, .scanlines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.chaos-bg {
+    background: radial-gradient(circle at 20% 50%, rgba(255, 69, 0, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.15) 0%, transparent 50%);
+    animation: breathe 8s ease-in-out infinite;
+}
+
+@keyframes breathe {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.7; }
+}
+
+.liquid-fire {
+    background: linear-gradient(45deg, transparent 0%, rgba(255, 69, 0, 0.05) 25%, rgba(0, 255, 255, 0.05) 50%, rgba(255, 69, 0, 0.05) 75%, transparent 100%);
+    background-size: 400% 400%;
+    animation: liquidFlow 15s ease infinite;
+}
+
+@keyframes liquidFlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.grid-overlay {
+    background-image: linear-gradient(rgba(255, 69, 0, 0.02) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255, 69, 0, 0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+}
+
+.scanlines {
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 2px);
+    opacity: 0.3;
+    z-index: 1000;
+}
+
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(5, 5, 10, 0.95);
+    border-bottom: 2px solid var(--fire);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 999;
+}
+
+.nav-logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--fire) 0%, var(--electric) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-links a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    color: var(--fire);
+    border-bottom-color: var(--fire);
+}
+
+.page-content {
+    padding: 6rem 3rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+}
+
+h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--fire) 0%, var(--electric) 50%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+}
+
+h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    color: var(--electric);
+    margin: 2.5rem 0 1.5rem;
+    border-bottom: 2px solid var(--fire);
+    padding-bottom: 0.5rem;
+}
+
+h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    color: var(--fire-bright);
+    margin: 2rem 0 1rem;
+}
+
+p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+}
+
+strong {
+    color: var(--fire-bright);
+}
+
+em {
+    color: var(--electric);
+}
+
+ul, ol {
+    margin: 1rem 0 1rem 2rem;
+    line-height: 1.8;
+}
+
+code {
+    background: rgba(26, 26, 46, 0.6);
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--electric);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    background: rgba(10, 10, 15, 0.6);
+}
+
+th {
+    background: rgba(255, 69, 0, 0.2);
+    padding: 1rem;
+    color: var(--fire-bright);
+    border-bottom: 2px solid var(--fire);
+}
+
+td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 69, 0, 0.1);
+}
+
+img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 2rem 0;
+    border: 2px solid rgba(255, 69, 0, 0.3);
+}
+
+.back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--fire) 0%, var(--fire-bright) 100%);
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    cursor: pointer;
+    z-index: 500;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+}
+
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--fire) 0%, var(--electric) 100%);
+    z-index: 1001;
+    transition: width 0.1s;
+}
+
+@media (max-width: 768px) {
+    .page-content {
+        padding: 6rem 1.5rem 3rem;
+    }
+    h1 {
+        font-size: 2rem;
+    }
+    .nav-links {
+        gap: 1rem;
+        font-size: 0.9rem;
+    }
+}

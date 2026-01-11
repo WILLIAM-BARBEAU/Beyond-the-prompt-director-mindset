@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beyond The Prompt | AI Director's Field Guide</title>
+    <meta name="description" content="Stop the slop. Reclaim your voice. Master AI direction with interactive training, prompt testing, and certification.">
+    
+    <!-- Social Media Tags -->
+    <meta property="og:title" content="Beyond The Prompt: Director's Archive">
+    <meta property="og:description" content="Transform from prompt writer to AI Director. Interactive training with certification.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=1200&h=630&fit=crop">
+    <meta property="og:type" content="website">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --fire: #ff4500;
+            --electric: #00ffff;
+            --void: #0a0a0f;
+            --gold: #ffd700;
+            --text: #ffd4b8;
+        }
+        
+        body {
+            background: var(--void);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        /* Parallax Background */
+        .bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            background: url('https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?w=1920') center/cover,
+                        radial-gradient(circle at 20% 50%, rgba(255,69,0,0.25), transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(0,255,255,0.25), transparent 50%);
+            animation: drift 40s linear infinite, breathe 8s ease-in-out infinite;
+            filter: brightness(0.6) contrast(1.2);
+        }
+        
+        @keyframes drift {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+        
+        @keyframes breathe {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.05); }
+        }
+        
+        .grid {
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(255,69,0,0.03) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255,69,0,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: -2;
+            animation: gridPulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+        
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0.4;
+            animation: scan 8s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(20px); }
+        }
+        
+        /* Layout */
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 320px;
+            background: rgba(5,5,10,0.95);
+            border-right: 2px solid rgba(255,69,0,0.3);
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 50;
+            transition: transform 0.3s;
+            box-shadow: 5px 0 30px rgba(255,69,0,0.2);
+        }
+        
+        .sidebar-header {
+            padding: 2rem;
+            border-bottom: 2px solid rgba(255,69,0,0.3);
+        }
+        
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--fire), var(--electric));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glitch 5s infinite;
+        }
+        
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 2px); }
+            94% { transform: translate(2px, -2px); }
+        }
+        
+        .grade-display {
+            background: rgba(0,0,0,0.6);
+            border: 2px solid var(--electric);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .grade-score {
+            font-size: 2.5rem;
+            color: var(--electric);
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 20px rgba(0,255,255,0.8);
+        }
+        
+        .nav-item {
+            padding: 0.9rem 1rem;
+            margin: 0.2rem 0;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #999;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,69,0,0.15);
+            border-left-color: var(--fire);
+            color: var(--fire);
+        }
+        
+        .nav-item.active {
+            background: rgba(255,69,0,0.2);
+            border-left-color: var(--fire);
+            color: var(--fire);
+            font-weight: 600;
+        }
+        
+        .nav-item.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .nav-item.locked::before {
+            content: '🔒 ';
+        }
+        
+        .main {
+            flex: 1;
+            margin-left: 320px;
+            padding: 3rem;
+            max-width: 1400px;
+        }
+        
+        .section {
+            margin-bottom: 4rem;
+            animation: fadeIn 0.6s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--fire), var(--electric), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            color: var(--fire);
+            text-transform: uppercase;
+            margin: 3rem 0 1.5rem;
+            border-bottom: 2px solid var(--fire);
+            padding-bottom: 0.5rem;
+        }
+        
+        h3 {
+            font-size: 1.8rem;
+            color: var(--electric);
+            margin: 2rem 0 1rem;
+            text-transform: uppercase;
+        }
+        
+        p {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        .glass {
+            background: rgba(10,10,15,0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,69,0,0.3);
+            padding: 2rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+        
+        .video {
+            position: relative;
+            padding-bottom: 56.25%;
+            background: rgba(0,0,0,0.9);
+            border: 2px solid var(--fire);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 2rem 0;
+            box-shadow: 0 10px 40px rgba(255,69,0,0.4);
+        }
+        
+        .video iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .callout {
+            background: rgba(255,69,0,0.15);
+            border-left: 5px solid var(--fire);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+        
+        .callout-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--fire);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+        
+        .exercise {
+            background: rgba(0,255,255,0.1);
+            border-left: 5px solid var(--electric);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+        
+        .test-box {
+            background: rgba(0,0,0,0.8);
+            border: 2px solid var(--electric);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+        
+        .prompt-input {
+            width: 100%;
+            min-height: 150px;
+            background: rgba(0,0,0,0.6);
+            border: 2px solid rgba(0,255,255,0.5);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            padding: 1.5rem;
+            border-radius: 4px;
+            resize: vertical;
+            margin: 1rem 0;
+        }
+        
+        .result {
+            padding: 2rem;
+            margin-top: 2rem;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .result.excellent {
+            background: rgba(0,255,0,0.1);
+            border: 2px solid #0f0;
+            color: #0f0;
+        }
+        
+        .result.good {
+            background: rgba(0,255,255,0.1);
+            border: 2px solid var(--electric);
+            color: var(--electric);
+        }
+        
+        .result.poor {
+            background: rgba(255,165,0,0.1);
+            border: 2px solid #ffa500;
+            color: #ffa500;
+        }
+        
+        .certificate {
+            background: linear-gradient(135deg, rgba(255,69,0,0.2), rgba(0,255,255,0.2));
+            border: 3px solid var(--gold);
+            padding: 3rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255,215,0,0.5);
+            margin: 2rem 0;
+        }
+        
+        .cert-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 2rem;
+            text-shadow: 0 0 20px rgba(255,215,0,0.8);
+        }
+        
+        .cert-badge {
+            width: 150px;
+            height: 150px;
+            margin: 2rem auto;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--fire), var(--electric), var(--gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            animation: rotate 4s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .btn {
+            background: var(--fire);
+            color: #000;
+            border: 3px solid var(--electric);
+            padding: 1.2rem 3rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(255,69,0,0.5);
+        }
+        
+        .btn:hover {
+            background: var(--electric);
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(0,255,255,0.7);
+        }
+        
+        .hidden { display: none; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: rgba(0,0,0,0.5);
+        }
+        
+        th {
+            background: var(--fire);
+            color: #000;
+            padding: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        td {
+            padding: 1rem;
+            border: 1px solid rgba(255,69,0,0.2);
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .main { margin-left: 0; padding: 2rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-layer"></div>
+    <div class="grid"></div>
+    <div class="scanlines"></div>
+    
+    <div class="container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">BEYOND<br>THE PROMPT</div>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">v2.0 | ULTIMATE EDITION</p>
+                
+                <div class="grade-display">
+                    <div class="grade-score" id="grade">0%</div>
+                    <div style="font-size: 0.9rem; color: #999; margin-top: 0.5rem;">OVERALL GRADE</div>
+                </div>
+            </div>
+            
+            <nav style="padding: 1rem;">
+                <div class="nav-item active" onclick="go('intro')">INTRODUCTION</div>
+                <div class="nav-item" onclick="go('tools')">FREE TOOLS</div>
+                <div class="nav-item" onclick="go('philosophy')">L0: PHILOSOPHY</div>
+                <div class="nav-item" onclick="go('roles')">L1: TWO ROLES</div>
+                <div class="nav-item" onclick="go('levels')">L2: POWER LEVELS</div>
+                <div class="nav-item" onclick="go('patterns')">L3: PATTERNS</div>
+                <div class="nav-item" onclick="go('levers')">L4: LEVERS</div>
+                <div class="nav-item" onclick="go('daily')">L5: DAILY RITUAL</div>
+                <div class="nav-item" onclick="go('music')">L6: MUSIC & ANIMATION</div>
+                <div class="nav-item locked" id="nav-test1" onclick="go('test1')">IMAGE PROMPT TEST</div>
+                <div class="nav-item locked" id="nav-test2" onclick="go('test2')">VIDEO PROMPT TEST</div>
+                <div class="nav-item locked" id="nav-cert" onclick="go('cert')">CERTIFICATION</div>
+            </nav>
+        </aside>
+        
+        <main class="main" id="content">
+            <div id="intro" class="section">
+                <h1>BEYOND THE PROMPT</h1>
+                <p style="font-size: 1.5rem; color: var(--electric); font-style: italic;">"I am the Author. The AI is talented material."</p>
+                
+                <div class="video">
+                    <iframe src="https://www.youtube.com/embed/05E0ejfizkc" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                
+                <div class="glass">
+                    <h2>THE MANIFESTO</h2>
+                    <p>Stop the slop. Reclaim your voice. Make AI your bitch.</p>
+                    <p>This isn't another prompt cookbook. It's a mindset reset—a field guide to Human-AI psychology and creative authorship.</p>
+                    
+                    <p><strong>The uncomfortable truth:</strong> Most "AI creators" aren't creating. They're glorified operators pushing buttons, letting the algorithm decide.</p>
+                    
+                    <p><strong>The point:</strong> You're not learning to write better prompts. You're learning to be a better <em>director</em>.</p>
+                    
+                    <div class="callout">
+                        <div class="callout-title">WHO THIS IS FOR</div>
+                        <p>Artists, designers, storytellers with basic AI experience who want output that screams <strong>YOU</strong>, not the model's defaults.</p>
+                    </div>
+                    
+                    <h3>WHAT YOU'LL MASTER</h3>
+                    <ul>
+                        <li>Human-AI collaboration psychology</li>
+                        <li>The Two Roles Framework</li>
+                        <li>Three Prompt Power Levels</li>
+                        <li>High-leverage prompt patterns</li>
+                        <li>Control levers (negatives & anchors)</li>
+                        <li>Daily director practice</li>
+                        <li>Music & animation direction</li>
+                        <li>Interactive testing with AI feedback</li>
+                        <li>Certification</li>
+                    </ul>
+                    
+                    <button class="btn" onclick="go('tools')" style="width: 100%; margin-top: 2rem;">ENTER THE ARCHIVE →</button>
+                </div>
+            </div>
+            
+            <div id="tools" class="section hidden">
+                <h2>FREE TOOLS ARMORY</h2>
+                
+                <div class="video">
+                    <iframe src="https://www.youtube.com/embed/bNSfAt0u_Rk" frameborder="0" allowfullscreen></iframe>
+                </div>
+                
+                <div class="callout">
+                    <div class="callout-title">WHY FREE TOOLS</div>
+                    <p>Expensive tools don't make you a better director. Start with constraints. Prove your craft. Then scale.</p>
+                </div>
+                
+                <div class="glass">
+                    <h3>THE ESSENTIAL TOOLKIT</h3>
+                    
+                    <h4>GROK / FLUX - Image Generation</h4>
+                    <p>Fast, raw, perfect for discovery. Start every project here—generate 20-30 variations, pick 2-3 that hit.</p>
+                    
+                    <h4>VIGGLE.AI - Video Generation</h4>
+                    <p>Image-to-video with free daily credits. Direct motion with vibe + contradiction patterns.</p>
+                    
+                    <h4>SUNO - Music</h4>
+                    <p>Instrumental mood loops. The difference between amateur and professional is the audio layer.</p>
+                    
+                    <h4>UBERDUCK.AI - Audio FX</h4>
+                    <p>Ambient sounds. Wind, rain, room tone—the subtle layer that sells realism.</p>
+                    
+                    <h4>CAPCUT / DAVINCI - Editing</h4>
+                    <p>Assemble everything. CapCut is easy, DaVinci is powerful. Both free.</p>
+                </div>
+                
+                <div class="exercise">
+                    <div style="color: var(--electric); font-weight: 700; margin-bottom: 1rem;">ASSIGNMENT: QUIET REGRET PROJECT</div>
+                    <p>Create one complete piece using only free tools:</p>
+                    <ol>
+                        <li>Generate image: "Crumbling brutalist apartment, golden hour, melancholic warmth, never cute"</li>
+                        <li>Convert to video: "Slow drift, hesitant, never fluid"</li>
+                        <li>Add ambient sound: distant traffic, wind</li>
+                        <li>Add music: sparse piano, 60 BPM, unresolved</li>
+                        <li>Composite & export 30-60 seconds</li>
+                    </ol>
+                    <p>Success = Someone who knows your work recognizes it as yours.</p>
+                </div>
+                
+                <button class="btn" onclick="go('philosophy')" style="width: 100%;">CONTINUE →</button>
+            </div>
+            
+            <div id="philosophy" class="section hidden">
+                <h2>L0: CORE PHILOSOPHY</h2>
+                
+                <div class="callout">
+                    <div class="callout-title">THE CORE RULE</div>
+                    <p style="font-size: 1.5rem; font-weight: 600;">I am the Author. The AI is talented material. My job is to stay in the Author seat.</p>
+                </div>
+                
+                <div class="glass">
+                    <p>You are <strong>not</strong> trying to write the perfect prompt. That's a trap.</p>
+                    <p>You're training yourself to be a <strong>better director</strong> of a very talented, slightly literal-minded intern.</p>
+                    <p>In film, the director doesn't build sets or act—they guide the vision. Same here.</p>
+                    
+                    <h3>WHY THIS MATTERS</h3>
+                    <p>Every time you generate, ask: <strong>"Is this still MY voice, or the AI's default?"</strong></p>
+                    <p>AI wants generic. Perfect lighting, balanced composition, safe emotions. Your job is to kill that instinct.</p>
+                    
+                    <h3>EXAMPLE IN ACTION</h3>
+                    <p>Generate 4 variations. Three are flawless but empty—stock photos. One is flawed (uneven lighting, awkward composition) but punches you with real emotion.</p>
+                    <p>Push the flawed one. That's staying in the Author seat.</p>
+                    
+                    <h3>THE DIRECTOR MINDSET</h3>
+                    <ul>
+                        <li><strong>Bad directors:</strong> Chase technical perfection, let AI defaults win</li>
+                        <li><strong>Good directors:</strong> Chase emotional truth, override defaults aggressively</li>
+                        <li><strong>Great directors:</strong> Build intuition so fast they spot drift in seconds</li>
+                    </ul>
+                </div>
+                
+                <div class="video">
+                    <iframe src="https://www.youtube.com/embed/BeKNTdCmYVs" frameborder="0" allowfullscreen></iframe>
+                </div>
+                
+                <button class="btn" onclick="go('roles')" style="width: 100%;">NEXT LESSON →</button>
+            </div>
+            
+            <div id="roles" class="section hidden">
+                <h2>L1: THE TWO ROLES</h2>
+                
+                <div class="glass">
+                    <p>People blur these roles and lose control. Let's fix that.</p>
+                    
+                    <table>
+                        <tr>
+                            <th>ROLE</th>
+                            <th>WHO</th>
+                            <th>OWNS</th>
+                            <th>WHY IT MATTERS</th>
+                        </tr>
+                        <tr>
+                            <td><strong>AUTHOR / DIRECTOR</strong></td>
+                            <td>YOU</td>
+                            <td>Vision · Taste · Emotion · Intent · Decisions</td>
+                            <td>Your unique voice lives here</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MATERIAL & ALLY</strong></td>
+                            <td>AI + TOOLS</td>
+                            <td>Speed · Variations · Execution · Raw ideas</td>
+                            <td>Great for efficiency, no soul without your guidance</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="callout">
+                        <div class="callout-title">DAILY REMINDER</div>
+                        <p>Say it before every session: <strong>"I am the author. The AI is talented material."</strong></p>
+                    </div>
+                    
+                    <h3>HOW IT WORKS</h3>
+                    <p><strong>You (Author):</strong> Set emotional core: "Make it feel like finding an old letter from someone you've lost"</p>
+                    <p><strong>AI (Material):</strong> Provides 4 visual options</p>
+                    <p><strong>You (Director):</strong> Pick the one that hits hardest, refine with negatives: "never sentimental, zero closure energy"</p>
+                    
+                    <h3>WHERE PEOPLE FAIL</h3>
+                    <ul>
+                        <li><strong>Giving AI too much power:</strong> "Just make something cool" = you're not directing</li>
+                        <li><strong>Over-controlling technical details:</strong> Describing every pixel = missing the emotional point</li>
+                        <li><strong>Accepting first results:</strong> No iteration = AI's voice, not yours</li>
+                    </ul>
+                    
+                    <p><strong>The balance:</strong> You lead with emotion and intent. AI executes with speed and variation. You select, refine, push.</p>
+                </div>
+                
+                <button class="btn" onclick="go('levels')" style="width: 100%;">NEXT LESSON →</button>
+            </div>
+            
+            <div id="levels" class="section hidden">
+                <h2>L2: THREE POWER LEVELS</h2>
+                
+                <div class="glass">
+                    <p>Choose wrong, get stuck. This is your decision framework.</p>
+                    
+                    <table>
+                        <tr>
+                            <th>LEVEL</th>
+                            <th>NAME</th>
+                            <th>BEST FOR</th>
+                            <th>LENGTH</th>
+                            <th>CONTROL</th>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>Vibe / Attitude</td>
+                            <td>Discovery, mood exploration</td>
+                            <td>1-3 sentences</td>
+                            <td>★★★★★</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Role + Goal + Guardrails</td>
+                            <td>Most daily work</td>
+                            <td>1 paragraph</td>
+                            <td>★★★★☆</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Ultra-Precise Technical</td>
+                            <td>Final polish only</td>
+                            <td>2-5 paragraphs</td>
+                            <td>★★☆☆☆</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="callout">
+                        <div class="callout-title">GOLDEN RULE</div>
+                        <p>Spend <strong>80%</strong> of time in Level 1 & 2. Level 3 is for finishing ONLY.</p>
+                    </div>
+                    
+                    <h3>LEVEL 1: VIBE/ATTITUDE (Discovery)</h3>
+                    <p><strong>Example:</strong> "Quiet regret at dusk, melancholic warmth, never hopeful"</p>
+                    <p><strong>When:</strong> Starting projects, finding mood, exploring ideas</p>
+                    <p><strong>Why it works:</strong> Short = few tokens = less AI drift = your voice dominates</p>
+                    
+                    <h3>LEVEL 2: ROLE + GOAL (Daily Work)</h3>
+                    <p><strong>Example:</strong> "You're my talented first AD. Create 4 variations of a crumbling apartment at golden hour. Rate each 1-10 for melancholic warmth. Never cute, never hopeful. Wait for my choice."</p>
+                    <p><strong>When:</strong> Iterative work, refinement, collaboration</p>
+                    <p><strong>Why it works:</strong> Clear role, clear goal, built-in guard rails</p>
+                    
+                    <h3>LEVEL 3: ULTRA-PRECISE (Finishing)</h3>
+                    <p><strong>Example:</strong> Multi-paragraph technical specifications</p>
+                    <p><strong>When:</strong> Final polish, client-ready output</p>
+                    <p><strong>Warning:</strong> More words = more tokens = more AI interpretation = drift risk</p>
+                    
+                    <h3>WHY TOKENS MATTER</h3>
+                    <p>Tokens are chunks AI reads (usually 3-5 chars). Long prompts = more tokens = slower, more expensive, higher drift.</p>
+                    <p>Short vibe prompts = fewer tokens = faster, cheaper, YOUR intent dominates.</p>
+                </div>
+                
+                <button class="btn" onclick="go('patterns')" style="width: 100%;">NEXT LESSON →</button>
+            </div>
+            
+            <div id="patterns" class="section hidden">
+                <h2>L3: FOUR PROMPT PATTERNS</h2>
+                
+                <div class="glass">
+                    <p>Memorize these templates—they carry 80% of the weight.</p>
+                    
+                    <h3>1. VIBE + CONTRADICTION</h3>
+                    <p>Forces AI out of defaults, creates tension.</p>
+                    <pre style="background: rgba(0,0,0,0.6); padding: 1.5rem; border-left: 4px solid var(--electric); overflow-x: auto; border-radius: 4px; margin: 1rem 0;"><code>Chaotic yet surgically precise, dream-like but brutally honest, 
+like the morning after a fight you know you lost</code></pre>
+                    
+                    <h3>2. DIRECTOR'S INSTRUCTION</h3>
+                    <p>Keeps you in charge, turns AI into collaborator.</p>
+                    <pre style="background: rgba(0,0,0,0.6); padding: 1.5rem; border-left: 4px solid var(--electric); overflow-x: auto; border-radius: 4px; margin: 1rem 0;"><code>You are my extremely talented but slightly over-eager first AD. 
+Suggest three strong directions, but do not decide—present 
+options clearly and wait for my choice.</code></pre>
+                    
+                    <h3>3. SELF-REFLECTION ANCHOR</h3>
+                    <p>Protects your voice by forcing AI to mirror your taste.</p>
+                    <pre style="background: rgba(0,0,0,0.6); padding: 1.5rem; border-left: 4px solid var(--electric); overflow-x: auto; border-radius: 4px; margin: 1rem 0;"><code>Before you generate, first describe in 2 sentences how my 
+personal taste would probably feel about a crumbling brutalist 
+interior at golden hour. Only after that, create the image.</code></pre>
+                    
+                    <h3>4. ITERATIVE POWER LOOP</h3>
+                    <p>Best repeating workflow for maintaining control.</p>
+                    <pre style="background: rgba(0,0,0,0.6); padding: 1.5rem; border-left: 4px solid var(--electric); overflow-x: auto; border-radius: 4px; margin: 1rem 0;"><code>Show me four variations. Rate each one yourself from my point 
+of view (1-10, melancholic warmth, never cute). Then wait for 
+which direction I want to push further.</code></pre>
+                    
+                    <div class="callout">
+                        <div class="callout-title">PRO TIP</div>
+                        <p>Mix patterns. Start with Vibe+Contradiction, iterate with Power Loop, finish with Self-Reflection check.</p>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="go('levers')" style="width: 100%;">NEXT LESSON →</button>
+            </div>
+            
+            <div id="levers" class="section hidden">
+                <h2>L4: TWO CONTROL LEVERS</h2>
+                
+                <div class="glass">
+                    <p>Most people pile on positives. That's weak. These levers flip the script.</p>
+                    
+                    <h3>LEVER 1: NEGATIVE SPACE INSTRUCTIONS</h3>
+                    <p>Forbidden zones that force originality.</p>
+                    <pre style="background: rgba(0,0,0,0.6); padding: 1.5rem; border-left: 4px solid var(--electric); overflow-x: auto; border-radius: 4px; margin: 1rem 0;"><code>never cute
+zero corporate/marketing energy
+absolutely no inspirational quote energy
+do not try to be beautiful
+no lens flare, no dramatic sky, no golden ratio bullshit
+avoid symmetry at all costs</code></pre>
+                    
+                    <h3>WHY NEGATIVES WORK</h3>
+                    <p>AI is trained on billions of images. Its defaults = what appears most often = generic corporate stock photos.</p>
+                    <p>Negatives carve out space by blocking the defaults, forcing AI to search deeper into its training.</p>
+                    
+                    <h3>LEVER 2: EMOTIONAL POV ANCHORING</h3>
+                    <p>Stop describing surfaces. Describe the gut punch.</p>
+                    <pre style="background: rgba(0,0,0,0.6); padding: 1.5rem; border-left: 4px solid var(--electric); overflow-x: auto; border-radius: 4px; margin: 1rem 0;"><code>Make it feel like the moment you realize you were wrong about 
+someone for three years
+
+Make it feel like the last cigarette before you quit forever
+
+Like finding an old mixtape from an ex you haven't thought 
+about in years
+
+The quiet resentment of scrolling past someone's perfect life 
+at 3 AM</code></pre>
+                    
+                    <h3>WHY EMOTIONAL ANCHORS WORK</h3>
+                    <p>They tap into universal human experience. AI can't "feel" but it's been trained on millions of texts describing feelings.</p>
+                    <p>The anchor connects abstract emotion to concrete visual/sonic patterns.</p>
+                    
+                    <div class="callout">
+                        <div class="callout-title">THE FORMULA</div>
+                        <p><strong>Negatives</strong> carve out space. <strong>Anchors</strong> fill it with your truth. Together = your voice.</p>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="go('daily')" style="width: 100%;">NEXT LESSON →</button>
+            </div>
+            
+            <div id="daily" class="section hidden">
+                <h2>L5: DAILY 5-MINUTE RITUAL</h2>
+                
+                <div class="glass">
+                    <p>Real transformation happens here. This builds director intuition.</p>
+                    
+                    <h3>EVERY DAY, 5 MINUTES:</h3>
+                    <ol style="font-size: 1.2rem; line-height: 2;">
+                        <li>Pick one tiny creative seed ("The weight of an unsent apology")</li>
+                        <li>Use Level 1 or 2 prompt only</li>
+                        <li>Generate → ask out loud: <strong>"Is this still my voice?"</strong></li>
+                        <li>If drifting → add one negative or anchor → regenerate ONCE</li>
+                        <li>Stop. No chasing perfection.</li>
+                    </ol>
+                    
+                    <div class="callout">
+                        <div class="callout-title">THE GOAL</div>
+                        <p style="font-size: 1.3rem;">Goal is not better outputs. Goal is getting extremely good at <strong>noticing when you're losing authorship</strong>.</p>
+                    </div>
+                    
+                    <h3>WHAT HAPPENS AFTER 2-3 WEEKS</h3>
+                    <p>You'll spot AI drift in seconds. Your gut will know immediately when something feels "off."</p>
+                    <p>That intuition is worth more than any prompt cookbook.</p>
+                    
+                    <h3>COMMON TRAPS TO AVOID</h3>
+                    <ul>
+                        <li><strong>Skipping days:</strong> Breaks the intuition muscle</li>
+                        <li><strong>Going over 5 minutes:</strong> You'll burn out, quit</li>
+                        <li><strong>Chasing quality:</strong> This is practice, not portfolio work</li>
+                        <li><strong>Not asking the question:</strong> The verbalization matters</li>
+                    </ul>
+                    
+                    <div class="exercise">
+                        <div style="color: var(--electric); font-weight: 700; margin-bottom: 1rem;">START TODAY</div>
+                        <p>Set 5-minute timer. Pick seed. Generate once. Journal: "Whose voice dominated—mine or AI's?"</p>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="go('music')" style="width: 100%;">NEXT LESSON →</button>
+            </div>
+            
+            <div id="music" class="section hidden">
+                <h2>L6: MUSIC & ANIMATION DIRECTION</h2>
+                
+                <div class="glass" style="max-width: 100%; overflow-x: hidden;">
+                    <p>Same mindset, different mediums. Let's extend into sound and motion.</p>
+                    
+                    <div class="callout">
+                        <div class="callout-title">CORE SHIFT</div>
+                        <p>You are Producer/Director. AI is your band or animation crew. Hold the leash tight.</p>
+                    </div>
+                    
+                    <h3>PART 1: MUSIC COMPOSITION</h3>
+                    <p>Defaults lean toward upbeat, major-key polish. Here's how to break that.</p>
+                    
+                    <h4>Level 1: Vibe + Sonic Texture</h4>
+                    <pre style="background: rgba(0,0,0,0.6); padding: 1.5rem; border-left: 4px solid var(--electric); overflow-x: auto; border-radius: 4px; margin: 1rem 0;"><code>Quiet regret fading into dusk — sparse piano with halting notes, 
+melancholic warmth, tempo ~60 BPM, never resolved</code></pre>
+                    
+                    <h4>Negatives Are Essential</h4>
+                    <pre style="background: rgba(0,0,0,0.6); padding: 1.5rem; border-left: 4px solid var(--electric); overflow-x: auto; border-radius: 4px; margin: 1rem 0;"><code>never upbeat or major key
+zero orchestral swells
+no clean production — add subtle imperfection
+avoid repetitive hooks
+no resolution or catharsis</code></pre>
+                    
+                    <h4>Emotional Anchors for Music</h4>
+                    <pre style="background: rgba(0,0,0,0.6); padding: 1.5rem; border-left: 4px solid var(--electric); overflow-x: auto; border-radius: 4px; margin: 1rem 0;"><code>Make the progression feel like an unsent apology — lingering 
+dissonant chords, no catharsis
+
+Like the silence after someone leaves and doesn't come back
+
+The weight of a conversation you'll never have</code></pre>
+                    
+                    <div class="video">
+                        <iframe src="https://www.youtube.com/embed/5bAvo6V7rcQ" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    
+                    <h3>PART 2: ANIMATION DIRECTION</h3>
+                    <p>Defaults are Disney-smooth and "cute." You want awkward, lived-in motion.</p>
+                    
+                    <h4>Level 1: Vibe + Motion Intent</h4>
+                    <pre style="background: rgba(0,0,0,0.6); padding: 1.5rem; border-left: 4px solid var(--electric); overflow-x: auto; border-radius: 4px; margin: 1rem 0;"><code>Quiet regret scene — camera hesitates then drifts slowly, 
+objects barely shift, never fluid or cinematic</code></pre>
+                    
+                    <h4>Negatives Dominate</h4>
+                    <pre style="background: rgba(0,0,0,0.6); padding: 1.5rem; border-left: 4px solid var(--electric); overflow-x: auto; border-radius: 4px; margin: 1rem 0;"><code>no exaggerated motion or bouncy physics
+zero cute expressions
+avoid perfect timing — add awkward holds
+never smooth easing
+no dramatic camera moves</code></pre>
+                    
+                    <h4>Emotional Anchors for Motion</h4>
+                    <pre style="background: rgba(0,0,0,0.6); padding: 1.5rem; border-left: 4px solid var(--electric); overflow-x: auto; border-radius: 4px; margin: 1rem 0;"><code>Motion feels like dragging through a memory you can't escape — 
+slow, reluctant, no payoff
+
+Like trying to leave a room but your feet won't move
+
+The heavy weight of knowing it's over but not wanting to admit it</code></pre>
+                    
+                    <h3>COMBINED WORKFLOW</h3>
+                    <ol>
+                        <li><strong>Start with still image</strong> (Vibe + Contradiction)</li>
+                        <li><strong>Direct motion</strong> (Add motion negatives + anchor)</li>
+                        <li><strong>Layer music</strong> (Separate prompt, same emotional core)</li>
+                        <li><strong>Add ambient sound</strong> (Subtle, never overpowering)</li>
+                        <li><strong>Composite</strong> (CapCut/DaVinci, minimal editing)</li>
+                    </ol>
+                    
+                    <div class="exercise">
+                        <div style="color: var(--electric); font-weight: 700; margin-bottom: 1rem;">MASTER EXERCISE</div>
+                        <p>Create 15-second piece:</p>
+                        <ul>
+                            <li>Image: "Empty chair at window, golden hour fading"</li>
+                            <li>Motion: "Camera slowly pushes in, hesitant, never smooth"</li>
+                            <li>Music: "Single piano note repeating, slightly out of tune, 40 BPM"</li>
+                            <li>Sound: "Distant city hum, wind through crack"</li>
+                        </ul>
+                        <p>Ask: Does this feel like goodbye? If yes, you nailed it.</p>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="unlockTests()" style="width: 100%;">UNLOCK TESTING →</button>
+            </div>
+            
+            <div id="test1" class="section hidden">
+                <h2>IMAGE PROMPT TEST</h2>
+                
+                <div class="glass">
+                    <p>Time to prove you can direct. Create a Level 1 or 2 prompt for this scenario:</p>
+                    
+                    <div class="callout">
+                        <div class="callout-title">SCENARIO</div>
+                        <p><strong>Create a prompt for:</strong> An abandoned subway platform at 3 AM. Must feel lonely but not scary. Should evoke quiet introspection, not horror or danger.</p>
+                    </div>
+                    
+                    <div class="test-box">
+                        <p style="font-weight: 700; margin-bottom: 1rem;">Your Prompt:</p>
+                        <textarea class="prompt-input" id="prompt1" placeholder="Write your prompt here...&#10;&#10;Remember:&#10;- Use Level 1 or 2&#10;- Include negatives&#10;- Add emotional anchor&#10;- Keep it concise"></textarea>
+                        
+                        <button class="btn" onclick="gradePrompt1()" style="width: 100%; margin-top: 1rem;">SUBMIT FOR GRADING</button>
+                        
+                        <div id="result1" class="result"></div>
+                    </div>
+                    
+                    <p style="margin-top: 2rem; font-size: 0.9rem; color: #999;">Attempts: <span id="attempts1">0</span>/3 • After 3 attempts, enhanced answer unlocks automatically</p>
+                </div>
+            </div>
+            
+            <div id="test2" class="section hidden">
+                <h2>VIDEO PROMPT TEST</h2>
+                
+                <div class="glass">
+                    <p>Now add motion. Create prompts for image-to-video generation:</p>
+                    
+                    <div class="callout">
+                        <div class="callout-title">SCENARIO</div>
+                        <p><strong>Starting image:</strong> Person sitting alone in diner booth, early morning light</p>
+                        <p><strong>Your task:</strong> Write motion prompt + music prompt that feels like "the weight of a decision you can't take back"</p>
+                    </div>
+                    
+                    <div class="test-box">
+                        <p style="font-weight: 700; margin-bottom: 1rem;">Motion Prompt:</p>
+                        <textarea class="prompt-input" id="prompt2a" placeholder="Describe the camera movement and object motion..."></textarea>
+                        
+                        <p style="font-weight: 700; margin: 2rem 0 1rem;">Music Prompt:</p>
+                        <textarea class="prompt-input" id="prompt2b" placeholder="Describe the musical mood, tempo, instrumentation..."></textarea>
+                        
+                        <button class="btn" onclick="gradePrompt2()" style="width: 100%; margin-top: 1rem;">SUBMIT FOR GRADING</button>
+                        
+                        <div id="result2" class="result"></div>
+                    </div>
+                    
+                    <p style="margin-top: 2rem; font-size: 0.9rem; color: #999;">Attempts: <span id="attempts2">0</span>/3</p>
+                </div>
+            </div>
+            
+            <div id="cert" class="section hidden">
+                <h2>CERTIFICATION</h2>
+                
+                <div id="cert-locked" class="glass">
+                    <h3 style="color: var(--gold);">🔒 CERTIFICATION LOCKED</h3>
+                    <p>Complete both prompt tests with a grade of 70% or higher to unlock your Director's Certificate.</p>
+                    <p style="margin-top: 2rem;">Current Progress:</p>
+                    <ul>
+                        <li>Image Test: <span id="cert-test1">Not Completed</span></li>
+                        <li>Video Test: <span id="cert-test2">Not Completed</span></li>
+                        <li>Overall Grade: <span id="cert-grade">0%</span></li>
+                    </ul>
+                </div>
+                
+                <div id="cert-unlocked" class="certificate hidden">
+                    <div class="cert-title">CERTIFICATE OF MASTERY</div>
+                    <div class="cert-badge">🎬</div>
+                    <p style="font-size: 1.5rem; margin: 2rem 0;">This Certifies That</p>
+                    <div class="cert-name" id="cert-name">AI DIRECTOR</div>
+                    <p style="font-size: 1.2rem; margin: 2rem 0;">Has Successfully Completed</p>
+                    <p style="font-size: 1.5rem; font-weight: 700; color: var(--electric);">BEYOND THE PROMPT</p>
+                    <p style="margin: 2rem 0;">Director's Field Guide to Human-AI Creative Authorship</p>
+                    <p style="font-size: 1.3rem; color: var(--gold); margin: 2rem 0;">Final Grade: <span id="cert-final-grade">0%</span></p>
+                    <p style="font-size: 0.9rem; color: #999; margin-top: 3rem;">Issued: <span id="cert-date"></span></p>
+                    <p style="font-size: 1.2rem; margin-top: 3rem; color: var(--fire);">You are the Author. The AI is talented material.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        let grade = 0;
+        let test1Complete = false;
+        let test2Complete = false;
+        let test1Grade = 0;
+        let test2Grade = 0;
+        let attempts1 = 0;
+        let attempts2 = 0;
+        
+        function go(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            
+            const sec = document.getElementById(section);
+            if (sec) {
+                sec.classList.remove('hidden');
+                sec.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            event.target.classList.add('active');
+        }
+        
+        function unlockTests() {
+            document.getElementById('nav-test1').classList.remove('locked');
+            document.getElementById('nav-test2').classList.remove('locked');
+            go('test1');
+        }
+        
+        function gradePrompt1() {
+            const prompt = document.getElementById('prompt1').value.trim();
+            attempts1++;
+            document.getElementById('attempts1').textContent = attempts1;
+            
+            const result = document.getElementById('result1');
+            result.style.display = 'block';
+            
+            if (!prompt) {
+                result.className = 'result poor';
+                result.innerHTML = '<h3>⚠️ NO PROMPT ENTERED</h3><p>You must write something. Try again.</p>';
+                return;
+            }
+            
+            const hasNegatives = /never|no |not |avoid|zero/i.test(prompt);
+            const hasEmotion = /feel|emotion|mood|atmosphere|like /i.test(prompt);
+            const isShort = prompt.split(' ').length < 50;
+            
+            let score = 0;
+            let feedback = [];
+            
+            if (hasNegatives) {
+                score += 30;
+                feedback.push('✓ Good use of negatives');
+            } else {
+                feedback.push('✗ Missing negatives (never, no, avoid)');
+            }
+            
+            if (hasEmotion) {
+                score += 40;
+                feedback.push('✓ Emotional anchor detected');
+            } else {
+                feedback.push('✗ No emotional anchor');
+            }
+            
+            if (isShort) {
+                score += 30;
+                feedback.push('✓ Concise (good!)');
+            } else {
+                feedback.push('✗ Too long - trim it down');
+            }
+            
+            test1Grade = score;
+            updateGrade();
+            
+            if (score >= 80) {
+                result.className = 'result excellent';
+                result.innerHTML = `<h3>🔥 EXCELLENT (${score}%)</h3><p>${feedback.join('<br>')}</p><p style="margin-top:1rem;">You're thinking like a director. This prompt has strong authorship.</p>`;
+                test1Complete = true;
+                unlockCert();
+            } else if (score >= 60) {
+                result.className = 'result good';
+                result.innerHTML = `<h3>✓ GOOD (${score}%)</h3><p>${feedback.join('<br>')}</p><p style="margin-top:1rem;">Solid foundation. Consider adding more specificity to negatives.</p>`;
+                test1Complete = true;
+                unlockCert();
+            } else if (attempts1 >= 3) {
+                result.className = 'result poor';
+                result.innerHTML = `<h3>ATTEMPTS EXHAUSTED (${score}%)</h3><p>${feedback.join('<br>')}</p><div class="callout" style="margin-top:2rem;"><div class="callout-title">ENHANCED PROMPT</div><p>"Abandoned subway platform at 3 AM, quiet introspection in dim fluorescent wash, solitude without menace, never eerie or horror-coded, avoid dramatic shadows or threatening atmosphere, feels like the space between decisions"</p></div><p style="margin-top:1rem;"><strong>Why this works:</strong> Negatives block horror defaults, emotional anchor ("space between decisions") drives mood, concise enough for author voice to dominate.</p>`;
+                test1Complete = true;
+                test1Grade = 50;
+                updateGrade();
+                unlockCert();
+            } else {
+                result.className = 'result poor';
+                result.innerHTML = `<h3>NEEDS WORK (${score}%)</h3><p>${feedback.join('<br>')}</p><p style="margin-top:1rem;">Try again. Focus on: ${feedback.filter(f => f.startsWith('✗')).map(f => f.replace('✗ ', '')).join(', ')}.</p>`;
+            }
+        }
+        
+        function gradePrompt2() {
+            const motion = document.getElementById('prompt2a').value.trim();
+            const music = document.getElementById('prompt2b').value.trim();
+            attempts2++;
+            document.getElementById('attempts2').textContent = attempts2;
+            
+            const result = document.getElementById('result2');
+            result.style.display = 'block';
+            
+            if (!motion || !music) {
+                result.className = 'result poor';
+                result.innerHTML = '<h3>⚠️ INCOMPLETE</h3><p>Both motion AND music prompts required.</p>';
+                return;
+            }
+            
+            let score = 0;
+            let feedback = [];
+            
+            const motionNeg = /never|no |avoid|zero/i.test(motion);
+            const musicNeg = /never|no |avoid|zero/i.test(music);
+            const motionEmotion = /feel|slow|hesitant|weight|heavy/i.test(motion);
+            const musicEmotion = /sparse|unresolved|dissonant|halting|weight/i.test(music);
+            const hasTempo = /bpm|tempo|slow|60|40|50/i.test(music);
+            
+            if (motionNeg) {
+                score += 20;
+                feedback.push('✓ Motion negatives present');
+            } else {
+                feedback.push('✗ Motion needs negatives');
+            }
+            
+            if (musicNeg) {
+                score += 20;
+                feedback.push('✓ Music negatives present');
+            } else {
+                feedback.push('✗ Music needs negatives');
+            }
+            
+            if (motionEmotion) {
+                score += 25;
+                feedback.push('✓ Motion has emotional weight');
+            } else {
+                feedback.push('✗ Motion lacks emotional anchor');
+            }
+            
+            if (musicEmotion) {
+                score += 25;
+                feedback.push('✓ Music has emotional depth');
+            } else {
+                feedback.push('✗ Music needs emotional texture');
+            }
+            
+            if (hasTempo) {
+                score += 10;
+                feedback.push('✓ Tempo specified');
+            }
+            
+            test2Grade = score;
+            updateGrade();
+            
+            if (score >= 80) {
+                result.className = 'result excellent';
+                result.innerHTML = `<h3>🔥 MASTERY (${score}%)</h3><p>${feedback.join('<br>')}</p><p style="margin-top:1rem;">You understand multi-modal direction. This is professional-grade work.</p>`;
+                test2Complete = true;
+                unlockCert();
+            } else if (score >= 60) {
+                result.className = 'result good';
+                result.innerHTML = `<h3>✓ SOLID (${score}%)</h3><p>${feedback.join('<br>')}</p><p style="margin-top:1rem;">Good integration of motion and sound. Polish the weak areas.</p>`;
+                test2Complete = true;
+                unlockCert();
+            } else if (attempts2 >= 3) {
+                result.className = 'result poor';
+                result.innerHTML = `<h3>ATTEMPTS EXHAUSTED (${score}%)</h3><p>${feedback.join('<br>')}</p><div class="callout" style="margin-top:2rem;"><div class="callout-title">ENHANCED PROMPTS</div><p><strong>Motion:</strong> "Camera slowly pushes toward face, hesitant and heavy, slight rack focus on coffee cup, objects barely move, never smooth or cinematic, avoid dramatic timing, feels like the moment before you say something you can't take back"</p><p style="margin-top:1rem;"><strong>Music:</strong> "Single sustained note on cello, slowly building dissonance, 45 BPM, halting rhythm like held breath, never resolved or cathartic, zero upbeat energy, sparse production with room resonance"</p></div><p style="margin-top:1rem;"><strong>Why this works:</strong> Both prompts share emotional core ("weight of irrevocable decision"), strong negatives block defaults, technical specs (BPM, camera movement) ground the vibe.</p>`;
+                test2Complete = true;
+                test2Grade = 50;
+                updateGrade();
+                unlockCert();
+            } else {
+                result.className = 'result poor';
+                result.innerHTML = `<h3>NEEDS WORK (${score}%)</h3><p>${feedback.join('<br>')}</p><p style="margin-top:1rem;">Try again. Strengthen: ${feedback.filter(f => f.startsWith('✗')).map(f => f.replace('✗ ', '')).join(', ')}.</p>`;
+            }
+        }
+        
+        function updateGrade() {
+            if (test1Complete && test2Complete) {
+                grade = Math.round((test1Grade + test2Grade) / 2);
+            } else if (test1Complete) {
+                grade = Math.round(test1Grade / 2);
+            } else if (test2Complete) {
+                grade = Math.round(test2Grade / 2);
+            }
+            
+            document.getElementById('grade').textContent = grade + '%';
+        }
+        
+        function unlockCert() {
+            if (test1Complete && test2Complete && grade >= 70) {
+                document.getElementById('nav-cert').classList.remove('locked');
+                document.getElementById('cert-locked').classList.add('hidden');
+                document.getElementById('cert-unlocked').classList.remove('hidden');
+                document.getElementById('cert-final-grade').textContent = grade + '%';
+                document.getElementById('cert-date').textContent = new Date().toLocaleDateString();
+            }
+            
+            document.getElementById('cert-test1').textContent = test1Complete ? `Passed (${test1Grade}%)` : 'Not Completed';
+            document.getElementById('cert-test2').textContent = test2Complete ? `Passed (${test2Grade}%)` : 'Not Completed';
+            document.getElementById('cert-grade').textContent = grade + '%';
+        }
+    </script>
+</body>
+</html>

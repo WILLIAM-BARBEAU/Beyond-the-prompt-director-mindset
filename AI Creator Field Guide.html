@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Creator's Field Guide</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%232563EB' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.3-.3.49-.7.49-1.11c0-.88-.72-1.6-1.6-1.6s-1.6.72-1.6 1.6H9.5c0-1.93 1.57-3.5 3.5-3.5s3.5 1.57 3.5 3.5c0 .88-.36 1.68-.93 2.25z'/%3E%3C/svg%3E" type="image/svg+xml">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#F9FAFB', // Soft off-white for backgrounds
+                            light: '#FFFFFF',
+                            dark: '#E5E7EB',
+                        },
+                        charcoal: '#212B36', // Dark charcoal for text
+                        accent: {
+                            DEFAULT: '#2563EB', // Electric blue
+                            light: '#3B82F6',
+                            dark: '#1D4ED8',
+                            hover: '#1E40AF',
+                        },
+                        secondary: '#6B7280', // Muted gray for borders/inactive
+                        gradeGood: '#10B981', // Green for good grade
+                        gradeOkay: '#F59E0B', // Orange for okay grade
+                        gradeNeedsWork: '#EF4444', // Red for needs work grade
+                    },
+                    fontFamily: {
+                        // Import Google Fonts
+                        display: ['"Rubik"', 'sans-serif'], // Headings
+                        body: ['"Inter"', 'sans-serif'],     // Body text
+                        monoCode: ['"JetBrains Mono"', 'monospace'], // Prompts/AI output
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'bounce-subtle': 'bounce-subtle 1s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: 0, transform: 'translateY(10px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        },
+                        'bounce-subtle': {
+                            '0%, 100%': { transform: 'translateY(-2%)' },
+                            '50%': { transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts import -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles to enhance aesthetics and override defaults if needed */
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .container-fluid {
+            width: 100%;
+        }
+        .ai-feedback-area, .media-output-area {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.5s ease-out, max-height 0.7s ease-out;
+            transform: translateY(10px);
+        }
+        .ai-feedback-area.active, .media-output-area.active {
+            opacity: 1;
+            max-height: 1000px; /* Large enough to accommodate content */
+            transform: translateY(0);
+        }
+        details > summary {
+            list-style: none; /* Remove default marker */
+            cursor: pointer;
+        }
+        details > summary::-webkit-details-marker {
+            display: none; /* For Chrome/Safari */
+        }
+        details[open] summary .arrow-icon {
+            transform: rotate(90deg);
+        }
+        .arrow-icon {
+            transition: transform 0.2s ease-in-out;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6); /* Slightly transparent white */
+            backdrop-filter: blur(10px); /* Glassmorphism blur */
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        /* Style for the prompt textarea focus */
+        textarea:focus {
+            outline: none;
+            border-color: var(--tw-colors-accent-DEFAULT);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3); /* Accent blue glow */
+        }
+        .code-block {
+            background-color: #e2e8f0; /* bg-slate-200 */
+            border-left: 4px solid var(--tw-colors-accent-DEFAULT);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.9em;
+            line-height: 1.5;
+            display: inline-block; /* to wrap properly */
+            white-space: pre-wrap; /* Preserve whitespace and wrap long lines */
+            word-break: break-word;
+        }
+        /* Styling for list items in content sections */
+        .content-section ul li, .content-section ol li {
+            margin-bottom: 0.5rem;
+        }
+        .content-section ul {
+            list-style: disc;
+            padding-left: 1.5rem;
+        }
+        .content-section ol {
+            list-style: decimal;
+            padding-left: 1.5rem;
+        }
+        .content-section p {
+            margin-bottom: 1rem;
+        }
+        .content-section h3 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        .content-section h4 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Delay for sequential animations */
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        .delay-500 { animation-delay: 0.5s; }
+        .delay-600 { animation-delay: 0.6s; }
+        .delay-700 { animation-delay: 0.7s; }
+        .delay-800 { animation-delay: 0.8s; }
+        .delay-900 { animation-delay: 0.9s; }
+        .delay-1000 { animation-delay: 1.0s; }
+        .delay-1100 { animation-delay: 1.1s; }
+        .delay-1200 { animation-delay: 1.2s; }
+        .delay-1300 { animation-delay: 1.3s; }
+
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 3rem; /* Smaller on mobile */
+            }
+            .header-subtitle {
+                font-size: 1.25rem;
+            }
+            .content-section h2 {
+                font-size: 2.25rem;
+            }
+            .content-section h3 {
+                font-size: 1.75rem;
+            }
+            .content-section p, .content-section ul li, .content-section ol li {
+                font-size: 1rem;
+            }
+            .workflow-title {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-primary-DEFAULT text-charcoal font-body min-h-screen flex flex-col items-center">
+    <div class="container-fluid max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- Header -->
+        <header class="text-center mb-12 py-8 bg-primary-light rounded-xl shadow-lg border border-primary-dark">
+            <h1 class="header-title text-5xl md:text-6xl font-display font-black text-charcoal mb-4 tracking-tight animate-fade-in">
+                AI Creator's Field Guide
+            </h1>
+            <p class="header-subtitle text-xl md:text-2xl font-body text-secondary animate-fade-in delay-200">
+                <span class="font-bold text-accent-DEFAULT">Creative Seed:</span> Mindful Creation
+            </p>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="space-y-16">
+            <!-- Introduction/Overview Section -->
+            <section class="p-8 bg-primary-light rounded-xl shadow-lg border border-primary-dark animate-fade-in delay-300 content-section">
+                <h2 class="text-4xl font-display font-extrabold text-charcoal mb-6">
+                    Introduction: AI-Assisted Creation: Beyond the Prompt
+                </h2>
+                <div class="text-lg leading-relaxed space-y-4">
+                    <p><strong>Version</strong>: 1.5</p>
+                    <p><strong>Update</strong>: January 2026</p>
+                    <p><strong>Theme</strong>: "Your Personal, Unorthodox Field Guide"</p>
+
+                    <h3>Why This Guide Exists</h3>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><strong>Problem</strong>: AI output often feels generic and soulless, lacking personal voice.</li>
+                        <li><strong>Solution</strong>: A mindset reset to empower creators to direct AI, not be dictated by it.</li>
+                        <li><strong>Target Audience</strong>: Creators (artists, designers, storytellers) with basic AI tool experience seeking unique output.</li>
+                        <li><strong>Outcome</strong>: A crash course in directing AI, daily workflows, and reclaiming creative voice.</li>
+                        <li><strong>Prerequisites</strong>: Access to AI image tools (Grok, Flux, SD3) and an open mind.</li>
+                        <li><strong>Goal</strong>: To enable users to spot and control AI drift, achieving output that "screams <em>you</em>."</li>
+                    </ul>
+                    <p class="font-semibold text-accent-DEFAULT">Engagement Check: What feels "off" in your recent AI output?</p>
+                </div>
+            </section>
+
+            <!-- Workflow Sections -->
+            <section id="workflow-sections" class="space-y-8">
+                <h2 class="text-4xl font-display font-extrabold text-charcoal mb-6 text-center">
+                    Your Creative Workflows
+                </h2>
+
+                <!-- Workflow Card Template (hidden and cloned by JS) -->
+                <div id="workflow-template" class="hidden">
+                    <details class="group bg-primary-light rounded-xl shadow-xl border border-primary-dark overflow-hidden transition-all duration-300 ease-in-out hover:shadow-2xl">
+                        <summary class="flex justify-between items-center p-6 md:p-8 cursor-pointer bg-primary-light hover:bg-primary-dark transition-colors duration-200">
+                            <h3 class="text-3xl font-display font-bold text-charcoal group-hover:text-accent-DEFAULT transition-colors duration-200 workflow-title"></h3>
+                            <svg class="arrow-icon w-6 h-6 text-secondary transform transition-transform duration-200 group-hover:text-accent-DEFAULT" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </summary>
+                        <div class="p-6 md:p-8 pt-0 space-y-6 workflow-content">
+                            <p class="text-lg text-secondary workflow-instructions"></p>
+
+                            <!-- User Prompt Input -->
+                            <div>
+                                <label for="user-prompt" class="block text-xl font-semibold text-charcoal mb-3">Your Prompt</label>
+                                <textarea class="user-prompt-textarea w-full p-4 border border-secondary rounded-lg focus:ring-accent-DEFAULT focus:border-accent-DEFAULT font-monoCode text-base bg-white shadow-inner" rows="6" placeholder="Enter your creative prompt here..."></textarea>
+                            </div>
+
+                            <button class="get-feedback-btn w-full py-3 px-6 bg-accent-DEFAULT text-white font-bold rounded-lg text-lg hover:bg-accent-hover transition-colors duration-200 shadow-md transform hover:scale-105">
+                                Get AI Feedback
+                            </button>
+
+                            <!-- AI Feedback Display Area -->
+                            <div class="ai-feedback-area space-y-4 p-6 glass-card rounded-lg relative border-accent-DEFAULT border-opacity-30">
+                                <h4 class="text-2xl font-display font-bold text-charcoal mb-4">AI Feedback</h4>
+                                <div class="interpretation-summary text-lg leading-relaxed text-charcoal bg-primary-light p-4 rounded-md border border-primary-dark shadow-sm">
+                                    <span class="font-semibold text-accent-DEFAULT">Interpretation:</span>
+                                    <p class="mt-2"></p>
+                                </div>
+                                <div class="grade-section flex flex-col md:flex-row items-start md:items-center bg-primary-light p-4 rounded-md border border-primary-dark shadow-sm">
+                                    <div class="flex items-center space-x-3 mb-2 md:mb-0 md:mr-4">
+                                        <span class="text-2xl font-semibold text-charcoal">Grade:</span>
+                                        <span class="grade text-4xl font-display font-extrabold">A</span>
+                                    </div>
+                                    <p class="grade-justification text-lg text-charcoal"></p>
+                                </div>
+                                <div>
+                                    <label for="enhanced-prompt" class="block text-xl font-semibold text-charcoal mb-3">Enhanced Prompt</label>
+                                    <textarea readonly class="enhanced-prompt-textarea w-full p-4 border border-secondary rounded-lg bg-primary-dark text-charcoal font-monoCode text-base shadow-inner" rows="6"></textarea>
+                                </div>
+                            </div>
+
+                            <button class="generate-content-btn w-full py-3 px-6 bg-secondary text-white font-bold rounded-lg text-lg hover:bg-charcoal transition-colors duration-200 shadow-md transform hover:scale-105 hidden">
+                                Generate Content
+                            </button>
+
+                            <!-- Resulting Media Display Area -->
+                            <div class="media-output-area space-y-4 p-6 glass-card rounded-lg relative border-accent-DEFAULT border-opacity-30">
+                                <h4 class="text-2xl font-display font-bold text-charcoal mb-4">Generated <span class="media-type-heading"></span> Output</h4>
+                                <div class="media-placeholder flex flex-col items-center justify-center bg-primary-dark border border-dashed border-secondary rounded-lg h-64 text-secondary text-lg text-center">
+                                    <!-- Icon and text will be inserted by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <!-- Getting Started Section -->
+            <section class="p-8 bg-primary-light rounded-xl shadow-lg border border-primary-dark animate-fade-in delay-400 content-section">
+                <h2 class="text-4xl font-display font-extrabold text-charcoal mb-6">Getting Started: Free Tools for Beginners (Hands-On Module)</h2>
+                <p class="text-lg text-secondary mb-6">This module is designed for beginners, mobile users, or those on free tiers, using a "quiet regret" vibe as a through-line. It emphasizes immediate generation, journaling, and comparison.</p>
+
+                <div class="text-lg leading-relaxed space-y-4">
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">Image Generation</h3>
+                    <div class="ml-4 space-y-4">
+                        <p><span class="font-semibold">1. Grok Image Gen:</span> Fast, good quality, free with limits. Setup via mobile app or <a href="https://x.com/grok" target="_blank" class="text-accent-DEFAULT hover:underline">x.com/grok</a>.</p>
+                        <ul class="list-disc list-inside ml-8">
+                            <li><span class="font-semibold">Assignment:</span> Prompt "Crumbling brutalist apartment at golden hour," generate variations, journal defaults, tweak with "melancholic warmth, never cute, never hopeful," regenerate, save as <code class="code-block">regret-base-01.png</code>.</li>
+                            <li><span class="font-semibold">Mobile Tip:</span> Use the Imagine button in Grok chat.</li>
+                            <li><span class="font-semibold">Video Ref:</span> Search YouTube for "<a href="https://www.youtube.com/results?search_query=Grok+Image+Gen+Beginner+Tutorial+2026" target="_blank" class="text-accent-DEFAULT hover:underline">Grok Image Gen Beginner Tutorial 2026</a>."</li>
+                        </ul>
+                        <p><span class="font-semibold">2. Hugging Face Spaces:</span> Browser-based, free models, no app needed. Setup via <a href="https://huggingface.co/spaces" target="_blank" class="text-accent-DEFAULT hover:underline">huggingface.co/spaces</a> (search "Flux" or "SD3").</p>
+                        <ul class="list-disc list-inside ml-8">
+                            <li><span class="font-semibold">Assignment:</span> Use the same prompt as Grok, compare results after adding negative/anchor, save a second base image.</li>
+                            <li><span class="font-semibold">Mobile Tip:</span> Works well in phone browsers.</li>
+                        </ul>
+                    </div>
+
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">Video Generation</h3>
+                    <div class="ml-4 space-y-4">
+                        <p><span class="font-semibold">3. Viggle.ai:</span> Excellent image-to-video, mobile-friendly, free daily credits. Setup via app or web.</p>
+                        <ul class="list-disc list-inside ml-8">
+                            <li><span class="font-semibold">Assignment:</span> Upload regret image, use motion prompt "Slow camera drift left to right, subtle reveal of abandoned objects, dust drifting," generate clip, journal artifacts, tweak with "never hopeful, no dramatic zoom," save as <code class="code-block">regret-video-01.mp4</code>.</li>
+                            <li><span class="font-semibold">Video Ref:</span> "<a href="https://www.youtube.com/results?search_query=Viggle+Beginner+Tutorial+2026" target="_blank" class="text-accent-DEFAULT hover:underline">Viggle Beginner Tutorial 2026</a>" on YouTube.</li>
+                        </ul>
+                        <p><span class="font-semibold">4. Kling AI (or free alternative):</span> Strong physics, longer clips. Assignment: Repeat image-to-video exercise, compare motion feel.</p>
+                    </div>
+
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">Audio & Music</h3>
+                    <div class="ml-4 space-y-4">
+                        <p><span class="font-semibold">5. Uberduck.ai:</span> Quick ambient sounds and effects. Assignment: Prompt "Distant traffic, occasional floor creak, quiet resentment at 3 AM — no music swell," generate 20-30s loop, download.</p>
+                        <p><span class="font-semibold">6. Suno:</span> Instrumental mood loops, free credits daily. Assignment: Prompt "Melancholic warm piano, like the last day of a relationship you know is over — never uplifting," generate 30s, download.</p>
+                    </div>
+
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">Editing & Assembly</h3>
+                    <div class="ml-4 space-y-4">
+                        <p><span class="font-semibold">7. CapCut</span> (mobile) or <span class="font-semibold">DaVinci Resolve Free</span> (desktop/iPad). Assignment: Import video, ambient, and music; trim, fade, sync; apply desaturated warm tones color grade; export <code class="code-block">regret-full-01.mp4</code>. Journal the process.</p>
+                    </div>
+
+                    <p class="font-semibold text-accent-DEFAULT text-xl">Outcome: A complete multi-medium "quiet regret" piece using free tools.</p>
+                </div>
+            </section>
+
+            <!-- Mini-Course: Director Mindset Crash Course -->
+            <section class="p-8 bg-primary-light rounded-xl shadow-lg border border-primary-dark animate-fade-in delay-500 content-section">
+                <h2 class="text-4xl font-display font-extrabold text-charcoal mb-6">Mini-Course: Director Mindset Crash Course</h2>
+                <p class="text-lg text-secondary mb-6">This course focuses on shifting from prompt chasing to becoming the creative director of AI processes.</p>
+
+                <div class="text-lg leading-relaxed space-y-4">
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">Key Takeaways Summary</h3>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><span class="font-semibold">You are always the Author:</span> AI is material, not the boss. Giving up authorship leads to generic output. The Author decides what "feels right," even if imperfect.</li>
+                        <li><span class="font-semibold">80% of best work in simple, vibe-first prompts:</span> Ultra-technical prompts kill intuition and voice. A short vibe prompt is often superior to a long technical one.</li>
+                        <li><span class="font-semibold">Negative instructions & emotional anchors > detailed positive descriptions:</span> These carve out space for personality. E.g., "never cute, no inspirational energy" kills default saccharine tendencies.</li>
+                        <li><span class="font-semibold">Goal is noticing AI voice:</span> Sharp intuition about "whose voice is this?" accelerates creativity. Spotting AI drift and correcting it is key.</li>
+                        <li><span class="font-semibold">Daily 5-minute ritual > endless tweaking:</span> Consistency trains director instincts faster. Spotting AI drift in seconds is the aim.</li>
+                    </ul>
+
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">Quick Note on Tokens</h3>
+                    <p>Tokens are AI's reading units (3-5 characters). Long prompts = more tokens = slower, more expensive, higher drift. Simple vibe prompts = fewer tokens = faster, cheaper, more room for user intent. The guide emphasizes <span class="font-semibold text-accent-DEFAULT">Level 1 & 2</span> prompts for high authorship.</p>
+
+                    <!-- Lesson 0 -->
+                    <div class="mt-8 p-6 bg-primary-dark rounded-lg border border-primary-dark shadow-inner space-y-4">
+                        <h4 class="text-2xl font-display font-bold text-charcoal">Lesson 0 – Core Philosophy</h4>
+                        <ul class="list-disc list-inside ml-4">
+                            <li><span class="font-semibold">Don't chase perfect prompts:</span> This leads to frustration and generic results.</li>
+                            <li><span class="font-semibold">Be a better director:</span> Treat AI as talented, literal-minded material (raw clay), not a god. Guide the vision like a film director.</li>
+                            <li><span class="font-semibold text-accent-DEFAULT">Core Rule:</span> "I am the Author. The AI is talented material. My job is to stay in the Author seat."</li>
+                            <li><span class="font-semibold">Example:</span> Pushing a flawed but emotional output over a technically perfect but empty one.</li>
+                            <li><span class="font-semibold">Context:</span> Similar to traditional arts where tools serve the artist. Losing the Author seat means letting the tool lead.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Lesson 1 -->
+                    <div class="mt-8 p-6 bg-primary-dark rounded-lg border border-primary-dark shadow-inner space-y-4">
+                        <h4 class="text-2xl font-display font-bold text-charcoal">Lesson 1 – The Only Two Roles That Matter</h4>
+                        <ul class="list-disc list-inside ml-4">
+                            <li><span class="font-semibold text-accent-DEFAULT">Author/Director (You):</span> Owns Vision, Taste, Emotion, Intent, Final Decisions. This is where your unique voice lives.</li>
+                            <li><span class="font-semibold text-accent-DEFAULT">Materials & Ally (AI + Tools):</span> Owns Speed, Variations, Technical Execution, Raw Ideas. Essential for efficiency but lacks soul without guidance.</li>
+                            <li><span class="font-semibold">Example:</span> You set the emotional core ("Make it feel like finding an old letter"); AI provides options; you pick and refine.</li>
+                            <li><span class="font-semibold">Daily Reminder:</span> "I am the author. The AI is very talented material. My job is to stay in the author seat."</li>
+                        </ul>
+                    </div>
+
+                    <!-- Lesson 2 -->
+                    <div class="mt-8 p-6 bg-primary-dark rounded-lg border border-primary-dark shadow-inner space-y-4">
+                        <h4 class="text-2xl font-display font-bold text-charcoal">Lesson 2 – The Three Prompt Power Levels</h4>
+                        <ul class="list-disc list-inside ml-4">
+                            <li><span class="font-semibold">Level 1: Vibe / Attitude Prompt:</span> Best for new ideas, mood exploration, early stages. 1-3 sentences, ★★★★☆ quality ceiling, ★★★★★ control. <span class="font-semibold text-accent-DEFAULT">Pro Tip:</span> Use 80% of the time for raw energy.</li>
+                            <li><span class="font-semibold">Level 2: Role + Goal + Guardrails:</span> Best for most daily creative work. 1 paragraph, ★★★★★ quality ceiling, ★★★★☆ control. <span class="font-semibold text-accent-DEFAULT">Pro Tip:</span> Add guardrails to protect your voice.</li>
+                            <li><span class="font-semibold">Level 3: Ultra-Precise Technical:</span> Best for final polish, client-ready output. 2-5 paragraphs, ★★★★★ quality ceiling, ★★☆☆☆ control. <span class="font-semibold text-accent-DEFAULT">Pro Tip:</span> Use sparingly as a finisher, not a starter.</li>
+                        </ul>
+                        <p><span class="font-semibold text-accent-DEFAULT">Golden Rule:</span> Spend 80% of energy in Level 1 & 2. Level 3 living is giving away authorship.</p>
+                    </div>
+
+                    <!-- Lesson 3 -->
+                    <div class="mt-8 p-6 bg-primary-dark rounded-lg border border-primary-dark shadow-inner space-y-4">
+                        <h4 class="text-2xl font-display font-bold text-charcoal">Lesson 3 – The Four Highest-Leverage Prompt Patterns</h4>
+                        <ol class="list-decimal list-inside ml-4">
+                            <li><span class="font-semibold">Vibe + Contradiction:</span> (e.g., <code class="code-block">Chaotic yet surgically precise, dream-like but brutally honest</code>) Forces AI out of defaults, creates tension. Mimics life's nuances.</li>
+                            <li><span class="font-semibold">Director's Instruction:</span> (e.g., <code class="code-block">You are my extremely talented but slightly over-eager first AD. Suggest three strong directions...</code>) Turns AI into a collaborator, builds dialogue.</li>
+                            <li><span class="font-semibold">Self-Reflection Anchor:</span> (e.g., <code class="code-block">Before you generate, first describe in 2 sentences how my personal taste would probably feel...</code>) Forces AI to mirror your taste. Personalizes AI over time.</li>
+                            <li><span class="font-semibold">Iterative Power Loop:</span> (e.g., <code class="code-block">Show me four variations. Rate each one yourself from my point of view...</code>) Keeps control round after round. Like shooting multiple takes.</li>
+                        </ol>
+                    </div>
+
+                    <!-- Lesson 4 -->
+                    <div class="mt-8 p-6 bg-primary-dark rounded-lg border border-primary-dark shadow-inner space-y-4">
+                        <h4 class="text-2xl font-display font-bold text-charcoal">Lesson 4 – Two Underrated Control Levers</h4>
+                        <ol class="list-decimal list-inside ml-4">
+                            <li><span class="font-semibold">Negative Space Instructions:</span> Forbidden zones that force originality. Examples: <code class="code-block">never cute</code>, <code class="code-block">zero corporate energy</code>, <code class="code-block">absolutely no inspirational quote energy</code>, <code class="code-block">avoid symmetry at all costs</code>. Carves out room for quirks, pushing toward authenticity.</li>
+                            <li><span class="font-semibold">Emotional POV Anchoring:</span> Describe the gut punch, not surfaces. Examples: <code class="code-block">Make it feel like the moment you realize you were wrong about someone for three years</code>, <code class="code-block">The quiet resentment of scrolling past someone's perfect life at 3 AM</code>. Taps into personal stories for resonance.</li>
+                        </ol>
+                    </div>
+
+                    <!-- Lesson 5 -->
+                    <div class="mt-8 p-6 bg-primary-dark rounded-lg border border-primary-dark shadow-inner space-y-4">
+                        <h4 class="text-2xl font-display font-bold text-charcoal">Lesson 5 – Your Daily 5-Minute Practice Habit</h4>
+                        <ul class="list-disc list-inside ml-4">
+                            <li><span class="font-semibold">Goal:</span> Build intuition muscle, turn theory into instinct.</li>
+                            <li><span class="font-semibold">Daily Routine:</span>
+                                <ol class="list-decimal list-inside ml-8">
+                                    <li>Pick a tiny seed (mood, character, etc.).</li>
+                                    <li>Use Level 1 or 2 prompt.</li>
+                                    <li>Generate, look, ask: "Is this still my voice, or the AI's default?"</li>
+                                    <li>If drifting, add one negative/anchor, regenerate <span class="font-semibold text-accent-DEFAULT">once</span>.</li>
+                                    <li>Stop.</li>
+                                </ol>
+                            </li>
+                            <li><span class="font-semibold">Focus:</span> Not better outputs, but getting good at noticing authorship loss.</li>
+                            <li><span class="font-semibold">Outcome:</span> After 2-3 weeks, AI drift is spotted instantly.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Lesson 6 -->
+                    <div class="mt-8 p-6 bg-primary-dark rounded-lg border border-primary-dark shadow-inner space-y-4">
+                        <h4 class="text-2xl font-display font-bold text-charcoal">Lesson 6 – Directing AI for Music Composition & Advanced Animation</h4>
+                        <p><span class="font-semibold text-accent-DEFAULT">Core Shift:</span> You are the Producer/Director; AI is the band/crew. Hold the leash tight.</p>
+                        <ul class="list-disc list-inside ml-4">
+                            <li><span class="font-semibold">Music Adjustments:</span>
+                                <ul class="list-disc list-inside ml-8">
+                                    <li>Level 1: Vibe + Sonic Texture (e.g., <code class="code-block">Quiet regret fading into dusk — sparse piano with halting notes... tempo ~60 BPM, never resolved.</code>)</li>
+                                    <li>Negatives: <code class="code-block">never upbeat</code>, <code class="code-block">zero orchestral swells</code>, <code class="code-block">no clean production</code>, <code class="code-block">avoid repetitive hooks</code>.</li>
+                                    <li>Anchors: <code class="code-block">Make the progression feel like an unsent apology...</code></li>
+                                    <li>Drift Spotting: "Stock library or raw garage demo at 3 AM?"</li>
+                                    <li>Tools (Jan 2026): Suno, Udio, AIVA, Mubert.</li>
+                                </ul>
+                            </li>
+                            <li><span class="font-semibold">Advanced Animation Adjustments:</span>
+                                <ul class="list-disc list-inside ml-8">
+                                    <li>Level 1: Vibe + Motion Intent (e.g., <code class="code-block">Quiet regret scene — camera hesitates then drifts slowly... never fluid or cinematic.</code>)</li>
+                                    <li>Negatives: <code class="code-block">no exaggerated motion</code>, <code class="code-block">zero cute expressions</code>, <code class="code-block">avoid perfect timing</code>, <code class="code-block">never smooth easing</code>.</li>
+                                    <li>Anchors: <code class="code-block">Motion feels like dragging through a memory...</code></li>
+                                    <li>Drift Spotting: "Pixar polish or raw indie stop-motion?"</li>
+                                    <li>Tools (Jan 2026): Runway Gen-4.5, Kling 2.5 Turbo Pro, Luma Ray3 Modify, Pika 2.5, Viggle.ai.</li>
+                                    <li>Advanced Concepts: Character Consistency, Keyframe Control, Motion Brush, Hybrid Workflows, Physics, Camera Grammar.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Apply It: Exercises to Lock In the Mindset -->
+            <section class="p-8 bg-primary-light rounded-xl shadow-lg border border-primary-dark animate-fade-in delay-600 content-section">
+                <h2 class="text-4xl font-display font-extrabold text-charcoal mb-6">Apply It: Exercises to Lock In the Mindset</h2>
+                <div class="text-lg leading-relaxed space-y-4">
+                    <ul class="list-disc list-inside ml-4">
+                        <li><span class="font-semibold">Lesson 0 Drill:</span> Write and recite a personal mantra.</li>
+                        <li><span class="font-semibold">Lesson 1 Drill:</span> Label Director vs. Ally elements in AI output, rewrite prompt to increase Director control.</li>
+                        <li><span class="font-semibold">Lesson 2 Quiz:</span> Identify prompt level for idea exploration (Level 1), generate vibes for "lost opportunity."</li>
+                        <li><span class="font-semibold">Lesson 3 Exercise:</span> Use Vibe + Contradiction pattern on "urban solitude."</li>
+                        <li><span class="font-semibold">Lesson 4 Drill:</span> Add negatives and anchor to "rainy street" prompt, compare.</li>
+                        <li><span class="font-semibold">Lesson 5 Habit Booster:</span> Run daily ritual twice on different mediums, track drift.</li>
+                        <li><span class="font-semibold">Lesson 6 Music Drill:</span> Generate loop with Vibe + Contradiction, add negative for sound.</li>
+                        <li><span class="font-semibold">Lesson 6 Animation Drill:</span> Use keyframe/motion brush on regret scene, apply negatives for timing.</li>
+                        <li><span class="font-semibold">Bonus Hybrid Challenge:</span> Combine custom music + advanced animation, journal synergy.</li>
+                        <li><span class="font-semibold text-accent-DEFAULT">New Interactivity:</span> Rate confidence 1-10 after each drill, note surprises.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Common Pitfalls -->
+            <section class="p-8 bg-primary-light rounded-xl shadow-lg border border-primary-dark animate-fade-in delay-700 content-section">
+                <h2 class="text-4xl font-display font-extrabold text-charcoal mb-6">Common Pitfalls</h2>
+                <div class="text-lg leading-relaxed space-y-4">
+                    <ol class="list-decimal list-inside ml-4">
+                        <li><span class="font-semibold">Over-Reliance on Level 3:</span> Leads to AI voice dominance. Fix: Start Level 1.</li>
+                        <li><span class="font-semibold">Chasing Perfection:</span> Regenerating excessively for "better" instead of "mine." Fix: Set a 3-round max, use mantra.</li>
+                        <li><span class="font-semibold">Ignoring Emotional Hits:</span> Keeping "good" but off outputs. Fix: Gut-check "Whose voice is this?"</li>
+                        <li><span class="font-semibold">Skipping Daily Habit:</span> No intuition build. Fix: Set phone reminder.</li>
+                        <li><span class="font-semibold">Tool Overload:</span> Chasing new models instead of directing existing ones. Fix: Stick to 2-3 tools, focus on levers.</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- AI Art Creation Workflows – Current Real-World Process -->
+            <section class="p-8 bg-primary-light rounded-xl shadow-lg border border-primary-dark animate-fade-in delay-800 content-section">
+                <h2 class="text-4xl font-display font-extrabold text-charcoal mb-6">AI Art Creation Workflows – Current Real-World Process</h2>
+                <p class="text-lg text-secondary mb-6">Three phased workflows, emphasizing Level 1 & 2 prompts until the end.</p>
+                <div class="text-lg leading-relaxed space-y-4">
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">1. Discovery & Mood Flow <span class="text-lg text-secondary">(12-18 min)</span></h3>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><span class="font-semibold">Goal:</span> Generate 9-15 raw sparks, find 1-2 "fuck yes" pieces.</li>
+                        <li><span class="font-semibold">Steps:</span> Seed vibe (Level 1, 1-2 sentences), generate 3x3 or 5x3 grid, scan for emotional hits, pick 1-3 winners, save with descriptive names, add one-sentence anchor note.</li>
+                        <li><span class="font-semibold text-accent-DEFAULT">Key:</span> Stop if nothing hits; change seed.</li>
+                    </ul>
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">2. Directed Iteration Flow <span class="text-lg text-secondary">(15-25 min per piece)</span></h3>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><span class="font-semibold">Goal:</span> Evolve a spark into 100% your voice.</li>
+                        <li><span class="font-semibold">Steps:</span> Start with winner, use Level 2 prompt (e.g., Iterative Power Loop), review variations, pick one, add ONE new lever (negative or anchor), repeat 3-5 rounds max.</li>
+                        <li>Stop when it feels "mine," not "perfect."</li>
+                        <li><span class="font-semibold text-accent-DEFAULT">Final Check:</span> "Would someone who knows my work instantly know it's me?"</li>
+                    </ul>
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">3. Polish & Composite Flow <span class="text-lg text-secondary">(10-20 min)</span></h3>
+                    <ul class="list-disc list-inside ml-4">
+                        <li><span class="font-semibold">Goal:</span> Elevate hero without losing soul, make portfolio/client ready.</li>
+                        <li><span class="font-semibold">Steps:</span> Upscale hero, light Level 3 technical tweaks (short paragraph max), optional composite (e.g., adding an isolated element), final negative sweep.</li>
+                        <li>Save final versions.</li>
+                    </ul>
+                    <p><span class="font-semibold">Daily Rhythm:</span> Example: Morning Discovery (35 min), Deep Work Iteration (2 hours), Evening Polish (15 min). Max 3 active pieces.</p>
+                    <p><span class="font-semibold">Tools (Jan 2026):</span> Grok Image Gen/Flux dev/SD3 Medium, Topaz Gigapixel, Affinity Photo, Eagle.app. Avoids complex nodes/ControlNet unless necessary (Level 3).</p>
+                </div>
+            </section>
+
+            <!-- Beyond Stills: Directing AI Video & Interactive Creation -->
+            <section class="p-8 bg-primary-light rounded-xl shadow-lg border border-primary-dark animate-fade-in delay-900 content-section">
+                <h2 class="text-4xl font-display font-extrabold text-charcoal mb-6">Beyond Stills: Directing AI Video & Interactive Creation</h2>
+                <p class="text-lg text-secondary mb-6"><span class="font-semibold text-accent-DEFAULT">Core Shift:</span> Think in motion + time. Start with a key image.</p>
+                <div class="text-lg leading-relaxed space-y-4">
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">Video-Specific Adjustments</h3>
+                    <ul class="list-disc list-inside ml-4">
+                        <li>Level 1: Vibe + Motion (e.g., <code class="code-block">...slow camera push toward the unmade bed, dust particles drifting...</code>)</li>
+                        <li>Negatives: <code class="code-block">no shaky cam</code>, <code class="code-block">zero sentimental music swell</code>.</li>
+                        <li>Anchors: <code class="code-block">Make the movement feel like the weight of an unsent apology...</code></li>
+                        <li>Iteration: Generate short clips, extend best ones, composite.</li>
+                    </ul>
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">Video Workflows</h3>
+                    <ol class="list-decimal list-inside ml-4">
+                        <li>Discovery Flow for Video: Image-to-video, pick emotionally hitting clip.</li>
+                        <li>Directed Iteration for Video: Use Iterative Power Loop with motion levers.</li>
+                        <li>Polish & Audio Flow: Prompt native audio or composite manually.</li>
+                    </ol>
+                    <p><span class="font-semibold">Interactive AI Creation:</span> Real-time directing (motion brush, conversational control). Treat like directing improv actors. Mantra holds: <span class="font-bold text-accent-DEFAULT">I am the Author.</span></p>
+                </div>
+            </section>
+
+            <!-- Advanced Techniques: Prompt Chaining & Multi-Medium Expansion -->
+            <section class="p-8 bg-primary-light rounded-xl shadow-lg border border-primary-dark animate-fade-in delay-1000 content-section">
+                <h2 class="text-4xl font-display font-extrabold text-charcoal mb-6">Advanced Techniques: Prompt Chaining & Multi-Medium Expansion</h2>
+                <div class="text-lg leading-relaxed space-y-4">
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">Chaining Basics</h3>
+                    <ul class="list-disc list-inside ml-4">
+                        <li>Sequential prompts, feeding output from one step to the next.</li>
+                        <li><span class="font-semibold">Example Chain:</span> Image → AI description → Video → Audio → Composite.</li>
+                    </ul>
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">Extending to 3D, Code, and Apps</h3>
+                    <ul class="list-disc list-inside ml-4">
+                        <li>Same mindset, new canvases.</li>
+                        <li>3D Modeling Tools: Canva AI 3D, Meshy.ai, Fast3D.io.</li>
+                        <li>Code Editors & App Builders: Cursor.ai, Replit AI, Lovable.dev / Bolt.new.</li>
+                        <li><span class="font-semibold">Assignment:</span> Chain Image → 3D model → simple deployed app.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- The Director Mindset for AI Writing & Text Generation -->
+            <section class="p-8 bg-primary-light rounded-xl shadow-lg border border-primary-dark animate-fade-in delay-1100 content-section">
+                <h2 class="text-4xl font-display font-extrabold text-charcoal mb-6">The Director Mindset for AI Writing & Text Generation</h2>
+                <p class="text-lg text-secondary mb-6"><span class="font-semibold text-accent-DEFAULT">Core Shift:</span> You are the Author; AI is talented material.</p>
+                <div class="text-lg leading-relaxed space-y-4">
+                    <p><span class="font-semibold">Why Text Needs It More:</span> Models trained on vast internet text default to bland, average voices (optimistic, clear, structured). Levers are needed for raw, unresolved emotion.</p>
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">Text-Specific Adjustments</h3>
+                    <ul class="list-disc list-inside ml-4">
+                        <li>Level 1 & 2 dominate.</li>
+                        <li>Negatives are crucial: <code class="code-block">never inspirational</code>, <code class="code-block">zero redemption arc</code>, <code class="code-block">no neat lessons learned</code>.</li>
+                        <li>Anchors over plot summaries: Describe feeling (e.g., <code class="code-block">the lingering discomfort and personal failure</code>).</li>
+                        <li>Spot AI voice: Read aloud, ask if it sounds like generic prose or your own painful writing.</li>
+                    </ul>
+                    <p><span class="font-semibold">Highest-Leverage Patterns for Text:</span> Adapted versions of Vibe + Contradiction, Director's Instruction, Iterative Power Loop, Self-Reflection Anchor.</p>
+                    <p><span class="font-semibold">Free Text Tools (Jan 2026):</span> Grok, Claude Free, ChatGPT Free, Gemini.</p>
+                    <p><span class="font-semibold">Assignment:</span> Generate a 300-500 word piece using Level 1/2, 2-3 negatives, one anchor, max 3 iterations.</p>
+                </div>
+            </section>
+
+            <!-- Capstone Project: Build Your Full Directed Multi-Medium Piece -->
+            <section class="p-8 bg-primary-light rounded-xl shadow-lg border border-primary-dark animate-fade-in delay-1200 content-section">
+                <h2 class="text-4xl font-display font-extrabold text-charcoal mb-6">Capstone Project: Build Your Full Directed Multi-Medium Piece</h2>
+                <p class="text-lg text-secondary mb-6"><span class="font-semibold">Goal:</span> Create one complete, multi-layered piece across image, video, text, music, animation, (optional) 3D/app, that "screams <em>you</em>."</p>
+                <div class="text-lg leading-relaxed space-y-4">
+                    <h3 class="text-3xl font-display font-bold text-accent-DEFAULT">Steps</h3>
+                    <ol class="list-decimal list-inside ml-4">
+                        <li>Start with Discovery Flow.</li>
+                        <li>Directed Iteration on Core Image (4-6 rounds max).</li>
+                        <li>Chain to Advanced Video/Animation.</li>
+                        <li>Add Audio/Music Layer.</li>
+                        <li>Write Accompanying Text.</li>
+                        <li>Optional Advanced Layers (3D, app, full animation).</li>
+                        <li>Final Polish & Negative Sweep.</li>
+                        <li>Author Check & Journal (200-word reflection).</li>
+                        <li>Share It.</li>
+                    </ol>
+                    <p><span class="font-semibold">Output Examples:</span> 30s animated video with custom music/ambient/text; Hero series with animation loop/caption; Interactive 3D scene with animation/music.</p>
+                </div>
+            </section>
+
+            <!-- Wrapping Up: Make This Yours -->
+            <section class="p-8 bg-primary-light rounded-xl shadow-lg border border-primary-dark animate-fade-in delay-1300 content-section">
+                <h2 class="text-4xl font-display font-extrabold text-charcoal mb-6">Wrapping Up: Make This Yours</h2>
+                <div class="text-lg leading-relaxed space-y-4">
+                    <ul class="list-disc list-inside ml-4">
+                        <li><span class="font-semibold">Call to Action:</span> Pick one lesson, run the drill, apply to next piece. Output will feel like "you" in a month.</li>
+                        <li><span class="font-semibold">Next Steps:</span> Track sessions, share work, scale up to non-art mediums.</li>
+                        <li><span class="font-semibold">Resources:</span> Books (<a href="https://austinkleon.com/steal/" target="_blank" class="text-accent-DEFAULT hover:underline">"Steal Like an Artist"</a>), Tools (Flux trials, Affinity Photo), Communities (<a href="https://www.reddit.com/r/AIArtDirectors/" target="_blank" class="text-accent-DEFAULT hover:underline">Reddit r/AIArtDirectors</a>).</li>
+                        <li><span class="font-semibold text-accent-DEFAULT">Mantra:</span> Stay the Author. AI is material.</li>
+                        <li><span class="font-semibold">Final Commitment:</span> Users are prompted to write down their first step.</li>
+                    </ul>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const workflowData = [
+                {
+                    title: "Image Generation",
+                    instructions: "Craft your visual prompt. Focus on mood and core elements. AI will help refine your vision.",
+                    mediaType: "Image",
+                    interpretation: "The AI interprets your prompt as a request for a surreal, dreamlike landscape with specific color tones. It highlights the desire for both detail and a sense of otherworldliness, while noting the need for a melancholic warmth.",
+                    grade: {
+                        value: "A",
+                        color: "gradeGood",
+                        justification: "Excellent start! Your prompt provides a strong conceptual foundation while leaving room for AI interpretation, aligning perfectly with Level 1 guidance. The inclusion of emotional anchors like 'melancholic warmth' and negative constraints ('never cute, never hopeful') is highly effective in carving out space for your personal voice.",
+                    },
+                    enhancedPrompt: "Generate a surreal landscape, infused with the melancholic warmth of a fading dream. Incorporate intricate, crystalline structures that reflect an ethereal, otherworldly glow. Focus on a palette of deep purples, soft lavenders, and unexpected hints of electric teal. Avoid any overt realism or sharp, defined edges; instead, let forms bleed and blend, creating a sense of fluid mystery. The overall mood should evoke a profound sense of introspection and quiet wonder, never feeling stark or artificial, never cute, and never hopeful.",
+                },
+                {
+                    title: "Video Generation",
+                    instructions: "Describe the motion and scene dynamics. Think like a film director setting up a shot.",
+                    mediaType: "Video",
+                    interpretation: "The AI understands you want a slow, contemplative camera movement through a scene of decay. It picks up on the 'quiet regret' emotional anchor and notes the request to avoid dramatic or sudden motion, aiming for a ponderous feel.",
+                    grade: {
+                        value: "B+",
+                        color: "gradeOkay",
+                        justification: "Good effort! You've defined the key motion and mood. Consider adding a 'negative instruction' to prevent overly smooth or cinematic transitions, reinforcing your desired raw feel. Explicitly banning 'smooth easing' would strengthen this.",
+                    },
+                    enhancedPrompt: "From a still, low angle, initiate a very slow, almost hesitant camera push towards a derelict, sun-drenched attic space. Dust motes should be visible drifting lazily in the light shafts. The motion should feel like a ponderous, almost painful memory being revisited, never smooth or cinematic. Focus on the subtle reveal of forgotten objects draped in shadow and golden light. No dramatic zooms or quick pans; the movement should be barely perceptible, amplifying the sense of quiet decay and lingering introspection. Avoid any music swell, overly emotional pacing, or perfectly smooth easing in the camera movement.",
+                },
+                {
+                    title: "Music Generation",
+                    instructions: "Express the mood, instrumentation, and desired sonic texture. Define what it should and shouldn't feel like.",
+                    mediaType: "Audio",
+                    interpretation: "The AI identifies a clear desire for a melancholic, unresolved piano piece with a specific tempo. It correctly flags the 'never uplifting' instruction as a critical guardrail and notes the 'unsent apology' anchor.",
+                    grade: {
+                        value: "A-",
+                        color: "gradeGood",
+                        justification: "Strong prompt for music! You've set both positive and negative constraints effectively. The emotional anchor 'like the last day of a relationship you know is over' is powerful. Explicitly adding 'avoid repetitive hooks' could further prevent generic AI tendencies.",
+                    },
+                    enhancedPrompt: "Compose a melancholic, warm piano loop, evocative of the last day of a relationship you know is irreversibly over. The tempo should be around 60 BPM, with halting, unresolved notes that linger. The overall progression should feel like an unsent apology, heavy with quiet sadness but devoid of dramatic flair or resolution. Never uplifting, no orchestral swells, and absolutely no clean, polished production; aim for a raw, slightly imperfect sound with occasional, almost random, floor creaks. The loop should be approximately 30-40 seconds, avoiding repetitive hooks.",
+                },
+                {
+                    title: "Text Generation",
+                    instructions: "Outline the core message, tone, and any crucial emotional anchors. Direct the AI's narrative voice.",
+                    mediaType: "Text",
+                    interpretation: "The AI recognizes the intent to generate reflective text with a focus on internal conflict and unresolved feelings, specifically addressing the quiet resentment of scrolling past someone's perfect life. It notes the desire for depth over simple positivity and the negative constraints against redemption.",
+                    grade: {
+                        value: "B",
+                        color: "gradeOkay",
+                        justification: "Solid foundation! You've outlined the tone well. To elevate it, consider adding one or two more 'negative space instructions' to explicitly prevent generic AI writing patterns, ensuring your unique voice shines through. For instance, 'avoid any saccharine conclusions' or 'no forced optimism'.",
+                    },
+                    enhancedPrompt: "Write a 300-500 word introspective piece exploring the quiet resentment of scrolling past someone's perfect life at 3 AM. The narrative should delve into the lingering discomfort and personal failure one might feel in that moment, without offering any redemption arc or neat lessons learned. Focus on the internal monologue, the subtle self-deception, and the heavy weight of unspoken comparisons. The tone should be raw and honest, never inspirational, optimistic, or overly structured. Let the prose breathe with the unresolved tension of late-night anxieties. Avoid any saccharine conclusions or forced optimism.",
+                }
+            ];
+
+            const workflowContainer = document.getElementById('workflow-sections');
+            const workflowTemplate = document.getElementById('workflow-template').content;
+
+            workflowData.forEach((data, index) => {
+                const workflowClone = document.importNode(workflowTemplate, true);
+                workflowClone.querySelector('.workflow-title').textContent = data.title;
+                workflowClone.querySelector('.workflow-instructions').textContent = data.instructions;
+                workflowClone.querySelector('.media-type-heading').textContent = data.mediaType; // For generated output heading
+                workflowClone.querySelector('.user-prompt-textarea').id = `user-prompt-${index}`;
+                workflowClone.querySelector('.enhanced-prompt-textarea').id = `enhanced-prompt-${index}`;
+                workflowClone.querySelector('label[for="user-prompt"]').setAttribute('for', `user-prompt-${index}`);
+                workflowClone.querySelector('label[for="enhanced-prompt"]').setAttribute('for', `enhanced-prompt-${index}`);
+                workflowClone.querySelector('details').classList.add(`animate-fade-in`, `delay-${400 + index * 100}`);
+
+
+                const getFeedbackBtn = workflowClone.querySelector('.get-feedback-btn');
+                const generateContentBtn = workflowClone.querySelector('.generate-content-btn');
+                const aiFeedbackArea = workflowClone.querySelector('.ai-feedback-area');
+                const mediaOutputArea = workflowClone.querySelector('.media-output-area');
+
+                // Simulate AI Feedback
+                getFeedbackBtn.addEventListener('click', () => {
+                    // Populate AI feedback
+                    aiFeedbackArea.querySelector('.interpretation-summary p').textContent = data.interpretation;
+                    const gradeSpan = aiFeedbackArea.querySelector('.grade');
+                    gradeSpan.textContent = data.grade.value;
+                    gradeSpan.className = `grade text-4xl font-display font-extrabold text-${data.grade.color}`;
+                    aiFeedbackArea.querySelector('.grade-justification').textContent = data.grade.justification;
+                    aiFeedbackArea.querySelector('.enhanced-prompt-textarea').value = data.enhancedPrompt;
+
+                    // Show AI feedback area
+                    aiFeedbackArea.classList.add('active');
+                    getFeedbackBtn.classList.add('hidden'); // Hide feedback button
+                    generateContentBtn.classList.remove('hidden'); // Show generate content button
+                });
+
+                // Simulate Content Generation
+                generateContentBtn.addEventListener('click', () => {
+                    const mediaPlaceholder = mediaOutputArea.querySelector('.media-placeholder');
+                    let mediaIconSVGPath = '';
+                    let placeholderText = `Your generated ${data.mediaType.toLowerCase()} will appear here.`;
+
+                    switch (data.mediaType) {
+                        case 'Image':
+                            mediaIconSVGPath = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L20 16m-2-6a2 2 0 11-4 0 2 2 0 014 0z"></path>';
+                            break;
+                        case 'Video':
+                            mediaIconSVGPath = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>';
+                            break;
+                        case 'Audio':
+                            mediaIconSVGPath = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v14c0 1.1-.9 2-2 2H9zm12-3.5v-10h-6.23l-3.77 1.88V18h8c1.1 0 2-.9 2-2zM9 19c0 1.1-.9 2-2 2s-2-.9-2-2v-2h4v2z"></path>';
+                            break;
+                        case 'Text':
+                            mediaIconSVGPath = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>';
+                            break;
+                    }
+                    mediaPlaceholder.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-12 h-12 text-secondary mb-2">${mediaIconSVGPath}</svg><p>${placeholderText}</p>`;
+
+                    // Show media output area
+                    mediaOutputArea.classList.add('active');
+                    generateContentBtn.classList.add('hidden'); // Hide generate button
+                });
+
+                workflowContainer.appendChild(workflowClone);
+            });
+        });
+    </script>
+</body>
+</html>

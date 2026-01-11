@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Machine | Beyond The Prompt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .cert-section {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .cert-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .cert-input, .cert-select {
+            padding: 1rem;
+            background: rgba(26, 26, 46, 0.8);
+            border: 1px solid rgba(255, 69, 0, 0.3);
+            border-radius: 4px;
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+        }
+        
+        .cert-button {
+            padding: 1.2rem 2rem;
+            background: linear-gradient(135deg, var(--fire) 0%, var(--fire-bright) 100%);
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(255, 69, 0, 0.4);
+            margin: 1rem 0.5rem;
+        }
+        
+        .cert-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(255, 69, 0, 0.6);
+        }
+        
+        #certificateCanvas {
+            max-width: 100%;
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            margin: 2rem 0;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="chaos-bg"></div>
+    <div class="liquid-fire"></div>
+    <div class="grid-overlay"></div>
+    <div class="scanlines"></div>
+    <div class="scroll-progress" id="scrollProgress"></div>
+    
+    <nav class="top-nav">
+        <div class="nav-logo">BEYOND THE PROMPT</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="guide.html">Full Guide</a>
+            <a href="certificate.html" class="active">Certificate</a>
+        </div>
+    </nav>
+    
+    <main class="page-content cert-section">
+        <h1>CERTIFICATE MACHINE</h1>
+        
+        <div style="background: rgba(255, 69, 0, 0.05); border-left: 4px solid var(--fire); padding: 1.5rem; margin: 2rem 0;">
+            <h3 style="color: var(--fire); margin-bottom: 1rem;">🏆 DIRECTOR'S CERTIFICATION</h3>
+            <p>Congratulations on completing the Director's Field Guide. Generate your official certificate to commemorate your journey to reclaiming authorship over AI creation.</p>
+        </div>
+        
+        <h2>CERTIFICATE DETAILS</h2>
+        
+        <div class="cert-controls">
+            <input type="text" id="directorName" class="cert-input" placeholder="Director Name" required>
+            <input type="email" id="directorEmail" class="cert-input" placeholder="Email Address">
+            <select id="certTheme" class="cert-select">
+                <option value="classic">Classic Fire</option>
+                <option value="void">Void</option>
+                <option value="electric">Electric</option>
+                <option value="gothic">Gothic Gold</option>
+            </select>
+            <input type="text" id="certRemarks" class="cert-input" placeholder="Performance Remarks (optional)">
+        </div>
+        
+        <div style="text-align: center; margin: 2rem 0;">
+            <button class="cert-button" onclick="generateCertificate()">GENERATE CERTIFICATE</button>
+            <button class="cert-button" onclick="downloadCertificate('png')">DOWNLOAD PNG</button>
+            <button class="cert-button" onclick="downloadCertificate('jpeg')">DOWNLOAD JPG</button>
+        </div>
+        
+        <canvas id="certificateCanvas" width="1200" height="800"></canvas>
+        
+        <div style="background: rgba(26, 26, 46, 0.8); border: 2px solid var(--gold); padding: 2rem; margin: 3rem 0; text-align: center;">
+            <p style="font-family: 'Cinzel', serif; font-size: 1.4rem; font-weight: 700; color: var(--gold); letter-spacing: 0.1em; margin: 0;">
+                "I am the Author. The AI is the Material."
+            </p>
+        </div>
+    </main>
+    
+    <div class="back-to-top" id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑</div>
+    
+    <script src="main.js"></script>
+    <script>
+        // Certificate generation
+        function generateCertificate() {
+            const directorName = document.getElementById('directorName').value || 'Director';
+            const certRemarks = document.getElementById('certRemarks').value || '';
+            const theme = document.getElementById('certTheme').value;
+            
+            const canvas = document.getElementById('certificateCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Theme colors
+            const themes = {
+                classic: { bg: ['#0a0a0f', '#1a1a2e'], border: '#ffd700', accent: '#ff4500', text: '#ffd4b8' },
+                void: { bg: ['#000000', '#0a0a0f'], border: '#666666', accent: '#ff0033', text: '#cccccc' },
+                electric: { bg: ['#001a1a', '#002633'], border: '#00ffff', accent: '#00ffff', text: '#e6ffff' },
+                gothic: { bg: ['#1a0000', '#330000'], border: '#ffd700', accent: '#ffd700', text: '#ffffcc' }
+            };
+            
+            const t = themes[theme];
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, t.bg[0]);
+            gradient.addColorStop(0.5, t.bg[1]);
+            gradient.addColorStop(1, t.bg[0]);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Border
+            ctx.strokeStyle = t.border;
+            ctx.lineWidth = 8;
+            ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+            
+            // Inner border
+            ctx.strokeStyle = t.accent;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(60, 60, canvas.width - 120, canvas.height - 120);
+            
+            // Title
+            ctx.fillStyle = t.accent;
+            ctx.font = 'bold 60px Orbitron, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('BEYOND THE PROMPT', canvas.width / 2, 150);
+            
+            // Subtitle
+            ctx.fillStyle = t.border;
+            ctx.font = 'bold 36px Rajdhani, sans-serif';
+            ctx.fillText('DIRECTOR CERTIFICATION', canvas.width / 2, 210);
+            
+            // Certificate text
+            ctx.fillStyle = t.text;
+            ctx.font = '28px Rajdhani, sans-serif';
+            ctx.fillText('This certifies that', canvas.width / 2, 300);
+            
+            // Director name
+            ctx.fillStyle = t.border;
+            ctx.font = 'bold 48px Cinzel, serif';
+            ctx.fillText(directorName, canvas.width / 2, 370);
+            
+            // Body text
+            ctx.fillStyle = t.text;
+            ctx.font = '24px Rajdhani, sans-serif';
+            ctx.fillText('has completed the Director Mindset Field Guide', canvas.width / 2, 440);
+            ctx.fillText('and reclaimed authorship over AI creation', canvas.width / 2, 480);
+            
+            // Remarks if provided
+            if (certRemarks) {
+                ctx.font = 'italic 20px Rajdhani, sans-serif';
+                ctx.fillStyle = t.accent;
+                ctx.fillText(certRemarks, canvas.width / 2, 530);
+            }
+            
+            // Mantra
+            ctx.fillStyle = t.accent;
+            ctx.font = 'italic 20px Cinzel, serif';
+            ctx.fillText('"I am the Author. The AI is the Material."', canvas.width / 2, 600);
+            
+            // Date
+            ctx.fillStyle = t.border;
+            ctx.font = '20px Rajdhani, sans-serif';
+            const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            ctx.fillText(date, canvas.width / 2, 670);
+            
+            // ID
+            const certId = 'BTP-' + Date.now().toString(36).toUpperCase();
+            ctx.fillStyle = t.text;
+            ctx.font = '16px Share Tech Mono, monospace';
+            ctx.fillText('Certificate ID: ' + certId, canvas.width / 2, 710);
+            
+            // Signature line
+            ctx.strokeStyle = t.text;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(300, 750);
+            ctx.lineTo(900, 750);
+            ctx.stroke();
+            
+            ctx.fillStyle = t.text;
+            ctx.font = '18px Rajdhani, sans-serif';
+            ctx.fillText('Director of the Forge', canvas.width / 2, 775);
+            
+            // Save to localStorage
+            const directorEmail = document.getElementById('directorEmail').value;
+            if (directorName && directorEmail) {
+                localStorage.setItem('directorName', directorName);
+                localStorage.setItem('directorEmail', directorEmail);
+            }
+        }
+        
+        function downloadCertificate(format) {
+            const canvas = document.getElementById('certificateCanvas');
+            const directorName = document.getElementById('directorName').value || 'Director';
+            const link = document.createElement('a');
+            link.download = `beyond-the-prompt-certificate-${directorName.replace(/\s+/g, '-')}.${format}`;
+            link.href = canvas.toDataURL(`image/${format}`);
+            link.click();
+        }
+        
+        // Auto-load saved info
+        window.addEventListener('load', () => {
+            const savedName = localStorage.getItem('directorName');
+            const savedEmail = localStorage.getItem('directorEmail');
+            if (savedName) document.getElementById('directorName').value = savedName;
+            if (savedEmail) document.getElementById('directorEmail').value = savedEmail;
+        });
+    </script>
+</body>
+</html>

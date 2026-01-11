@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Test | Beyond The Prompt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="chaos-bg"></div>
+    <div class="liquid-fire"></div>
+    <div class="grid-overlay"></div>
+    <div class="scanlines"></div>
+    
+    <nav class="top-nav">
+        <div class="nav-logo">BEYOND THE PROMPT</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="guide.html">Full Guide</a>
+            <a href="certificate.html">Certificate</a>
+            <a href="test.html" class="active">Test</a>
+        </div>
+    </nav>
+    
+    <main class="page-content">
+        <h1>🔧 NAVIGATION TEST</h1>
+        
+        <div style="background: rgba(0, 255, 0, 0.1); border: 2px solid #00ff00; padding: 2rem; margin: 2rem 0; border-radius: 8px;">
+            <h2 style="color: #00ff00; margin-top: 0;">✅ If you can see this page, navigation is working!</h2>
+            <p>All internal links are functioning correctly.</p>
+        </div>
+        
+        <h2>Test All Links</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0;">
+            <a href="index.html" style="background: rgba(255, 69, 0, 0.1); border: 2px solid var(--fire); padding: 1.5rem; border-radius: 8px; text-align: center; text-decoration: none; color: var(--text); font-weight: 600;">
+                🏠 Home
+            </a>
+            <a href="guide.html" style="background: rgba(255, 69, 0, 0.1); border: 2px solid var(--fire); padding: 1.5rem; border-radius: 8px; text-align: center; text-decoration: none; color: var(--text); font-weight: 600;">
+                📖 Guide
+            </a>
+            <a href="certificate.html" style="background: rgba(255, 69, 0, 0.1); border: 2px solid var(--fire); padding: 1.5rem; border-radius: 8px; text-align: center; text-decoration: none; color: var(--text); font-weight: 600;">
+                🏆 Certificate
+            </a>
+        </div>
+        
+        <h2>File Checklist</h2>
+        <ul style="font-size: 1.1rem; line-height: 2;">
+            <li>✅ index.html - Landing page</li>
+            <li>✅ guide.html - Complete field guide (60KB+)</li>
+            <li>✅ certificate.html - Certificate generator</li>
+            <li>✅ styles.css - All styling</li>
+            <li>✅ main.js - JavaScript</li>
+            <li>✅ README.md - Documentation</li>
+        </ul>
+        
+        <div style="background: rgba(0, 255, 255, 0.1); border: 2px solid var(--electric); padding: 2rem; margin: 3rem 0; border-radius: 8px;">
+            <h3 style="color: var(--electric); margin-top: 0;">💡 Troubleshooting</h3>
+            <p><strong>If you see a 404 error:</strong></p>
+            <ol>
+                <li>Make sure ALL files are in the same folder</li>
+                <li>Don't open files directly - use a local web server or just open index.html first</li>
+                <li>Check browser console for errors (F12)</li>
+            </ol>
+            <p><strong>Files must be together:</strong></p>
+            <code style="display: block; background: rgba(0,0,0,0.5); padding: 1rem; margin: 1rem 0; border-radius: 4px;">
+beyond-the-prompt/<br>
+├── index.html<br>
+├── guide.html<br>
+├── certificate.html<br>
+├── styles.css<br>
+├── main.js<br>
+└── README.md
+            </code>
+        </div>
+        
+        <h2>Quick Links to External Tools</h2>
+        <p>These should open in new tabs:</p>
+        <ul style="font-size: 1.1rem;">
+            <li><a href="https://x.com/i/grok" target="_blank">Grok (X/Twitter)</a></li>
+            <li><a href="https://chatgpt.com" target="_blank">ChatGPT</a></li>
+            <li><a href="https://claude.ai" target="_blank">Claude</a></li>
+            <li><a href="https://huggingface.co/spaces" target="_blank">Hugging Face Spaces</a></li>
+            <li><a href="https://suno.com" target="_blank">Suno (Music AI)</a></li>
+        </ul>
+    </main>
+    
+    <script src="main.js"></script>
+</body>
+</html>
